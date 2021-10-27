@@ -67,6 +67,23 @@ This package also provide an event to allow your application to listen for Shope
 |-------------------------------------------|-----------------------|
 | Laraditz\Shopee\Events\WebhookReceived    | Receive a push content from Shopee. 
 
+## Webhook URL
+
+You may setup the URL below on shopee open API dashboard so that Shopee will push all content update to this url and trigger the `WebhookReceived` event above.
+
+```
+https://your-app-url/shopee/webhooks
+```
+
+## Commands
+
+```bash
+shopee:flush-expired-token    Flush expired access token.
+shopee:refresh-token          Refresh existing access token before it expired.
+```
+As Shopee access token expired in 4 hours, you may want to set `shopee:refresh-token` on scheduler and run it before it expires to refresh the access token. Otherwise, you need to reauthorize the shop and generate a new access token.
+
+
 ### Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
