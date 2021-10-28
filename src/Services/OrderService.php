@@ -50,27 +50,33 @@ class OrderService extends BaseService
         return null;
     }
 
-    public function detail(string $order_sn, array $extraFields = [])
+    public function detail(string $order_sn, array $extraFields = [], int $shop_id = null)
     {
-        $order = ShopeeOrder::findOrFail($order_sn);
+        $order = ShopeeOrder::find($order_sn);
+
+        if ($shop_id) {
+            $shop = ShopeeShop::find($shop_id);
+        } elseif ($order) {
+            $shop = $order->shop;
+        }
+
         throw_if(
-            !$order->shop,
+            !$shop,
             NotFoundHttpException::class,
             'Shop not found.'
         );
-        $shop = $order->shop;
 
         $partner_id = app('shopee')->getPartnerId();
         $route = 'order.get_detail';
         $path = app('shopee')->getPath($route);
         $access_token = data_get($shop, 'accessToken.access_token');
-        $signature = app('shopee')->helper()->generateSignature($path, [$access_token, $order->shop_id]);
+        $signature = app('shopee')->helper()->generateSignature($path, [$access_token, $shop->id]);
 
         $query_string = [
             'partner_id' => $partner_id,
             'timestamp' => $signature['time'],
             'access_token' => $access_token,
-            'shop_id' => $order->shop_id,
+            'shop_id' => $shop->id,
             'sign' => $signature['signature'],
         ];
 
@@ -88,6 +94,15 @@ class OrderService extends BaseService
             ->execute();
 
         if ($response) {
+            if (!$order && $order_sn && $shop) {
+                ShopeeOrder::updateOrCreate([
+                    'id' => $order_sn
+                ], [
+                    'shop_id' => $shop->id,
+                    'status' => data_get($response, 'response.order_list.0.order_status'),
+                ]);
+            }
+
             return data_get($response, 'response.order_list.0');
         }
 
