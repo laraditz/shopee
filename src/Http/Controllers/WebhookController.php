@@ -26,6 +26,8 @@ class WebhookController extends Controller
 
             $data = app('shopee')->helper()->transformWebhookData($request->all());
 
+            logger()->info('WebhookController', $data);
+
             event(new WebhookReceived($data));
 
             // add order if not exists

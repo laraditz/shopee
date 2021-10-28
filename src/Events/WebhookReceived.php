@@ -13,6 +13,7 @@ class WebhookReceived
 
     public function __construct($data)
     {
+        logger()->info('WebhookReceived', $data);
         $this->data = $data;
     }
 }
