@@ -50,15 +50,10 @@ class OrderService extends BaseService
         return null;
     }
 
-    public function detail(string $order_sn, array $extraFields = [], int $shop_id = null)
+    public function detail(string $order_sn, array $extraFields = [])
     {
-        $order = ShopeeOrder::find($order_sn);
-
-        if ($shop_id) {
-            $shop = ShopeeShop::find($shop_id);
-        } elseif ($order) {
-            $shop = $order->shop;
-        }
+        $order = ShopeeOrder::findOrFail($order_sn);
+        $shop = $order->shop;
 
         throw_if(
             !$shop,
@@ -94,14 +89,6 @@ class OrderService extends BaseService
             ->execute();
 
         if ($response) {
-            if (!$order && $order_sn && $shop) {
-                ShopeeOrder::updateOrCreate([
-                    'id' => $order_sn
-                ], [
-                    'shop_id' => $shop->id,
-                    'status' => data_get($response, 'response.order_list.0.order_status'),
-                ]);
-            }
 
             return data_get($response, 'response.order_list.0');
         }
