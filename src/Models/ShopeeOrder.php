@@ -9,7 +9,7 @@ class ShopeeOrder extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id', 'shop_id'];
+    protected $fillable = ['id', 'shop_id', 'status'];
 
     public function getIncrementing()
     {
