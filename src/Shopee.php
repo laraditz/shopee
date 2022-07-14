@@ -7,7 +7,7 @@ use BadMethodCallException;
 
 class Shopee
 {
-    private $services = ['auth', 'order', 'helper', 'shop', 'payment'];
+    private $services = ['auth', 'order', 'helper', 'shop', 'payment', 'product', 'logistics', 'shop_category'];
 
     public function __call($method, $arguments)
     {
@@ -18,7 +18,11 @@ class Shopee
 
             $service_name = 'Laraditz\\Shopee\\Services\\' . $reformat_property_name . 'Service';
 
-            return new $service_name;
+            if (class_exists($service_name)) {
+                return new $service_name;
+            } else {
+                return new \Laraditz\Shopee\Services\Service($property_name);
+            }
         } else {
             throw new BadMethodCallException(sprintf(
                 'Method %s::%s does not exist.',
