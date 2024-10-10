@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('shopee_access_tokens', function (Blueprint $table) {
             $table->text('access_token')->nullable()->change();
-            $table->string('refresh_token')->nullable()->change();
+            $table->text('refresh_token')->nullable()->change();
         });
     }
 
