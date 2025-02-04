@@ -1,54 +1,53 @@
 {
-    "name": "laraditz/shopee",
-    "description": "A simple laravel package for Shopee",
-    "keywords": [
-        "laraditz",
-        "shopee"
-    ],
-    "homepage": "https://github.com/laraditz/shopee",
-    "license": "MIT",
-    "type": "library",
-    "authors": [
-        {
-            "name": "Raditz Farhan",
-            "email": "raditzfarhan@gmail.com",
-            "role": "Developer"
-        }
-    ],
-    "require": {
-        "php": "^8.0",
-        "illuminate/support": "^8.0|^9.0|^10.0"
-    },
-    "require-dev": {
-        "orchestra/testbench": "^6.0",
-        "phpunit/phpunit": "^9.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "Laraditz\\Shopee\\": "src"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Laraditz\\Shopee\\Tests\\": "tests"
-        }
-    },
-    "scripts": {
-        "test": "vendor/bin/phpunit",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
-
-    },
-    "config": {
-        "sort-packages": true
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Laraditz\\Shopee\\ShopeeServiceProvider"
-            ],
-            "aliases": {
-                "Shopee": "Laraditz\\Shopee\\ShopeeFacade"
-            }
-        }
+  "name": "laraditz/shopee",
+  "description": "A simple laravel package for Shopee",
+  "keywords": [
+    "laraditz",
+    "shopee"
+  ],
+  "homepage": "https://github.com/laraditz/shopee",
+  "license": "MIT",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Raditz Farhan",
+      "email": "raditzfarhan@gmail.com",
+      "role": "Developer"
     }
+  ],
+  "require": {
+    "php": "^8.2",
+    "illuminate/support": "^8.0|^9.0|^10.0|^11.0"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^6.0",
+    "phpunit/phpunit": "^9.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Laraditz\\Shopee\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Laraditz\\Shopee\\Tests\\": "tests"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit",
+    "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Laraditz\\Shopee\\ShopeeServiceProvider"
+      ],
+      "aliases": {
+        "Shopee": "Laraditz\\Shopee\\ShopeeFacade"
+      }
+    }
+  }
 }
