@@ -48,6 +48,8 @@ class BaseService
             'request' => $payload,
         ]);
 
+        // dd($url, $payload);
+
         $response = $response->$method($url, $payload);
 
         $response->throw();

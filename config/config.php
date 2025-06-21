@@ -28,6 +28,14 @@ return [
         'payment' => [
             'get_escrow_detail' => '/api/v2/payment/get_escrow_detail',
         ],
+        'product' => [
+            'get_list' => '/api/v2/product/get_item_list',
+            'get_base_info' => '/api/v2/product/get_item_base_info',
+            'get_extra_info' => '/api/v2/product/get_item_extra_info',
+            'get_model_list' => '/api/v2/product/get_model_list',
+            'update_stock' => '/api/v2/product/update_stock',
+            'search' => '/api/v2/product/search_item',
+        ]
     ],
     'middleware' => ['api'],
 ];

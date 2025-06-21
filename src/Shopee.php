@@ -7,7 +7,7 @@ use BadMethodCallException;
 
 class Shopee
 {
-    private $services = ['auth', 'order', 'helper', 'shop', 'payment'];
+    private $services = ['auth', 'order', 'helper', 'shop', 'payment', 'product'];
 
     public function __call($method, $arguments)
     {
@@ -31,7 +31,7 @@ class Shopee
     public function getUrl(string $path, array $query = [])
     {
         $sandbox_mode = config('shopee.sandbox.mode');
-        $route =  config('shopee.routes.' . $path);
+        $route = config('shopee.routes.' . $path);
         $url = config('shopee.base_url');
 
         if ($sandbox_mode === true) {
@@ -49,7 +49,7 @@ class Shopee
 
     public function getPartnerId()
     {
-        return (int)config('shopee.partner_id');
+        return (int) config('shopee.partner_id');
     }
 
     public function getPath(string $route)
