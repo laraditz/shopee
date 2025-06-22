@@ -71,15 +71,15 @@ class ProductService extends BaseService
                         $item_id = data_get($item, 'item_id');
 
                         if ($item_id) {
-                            $sku = data_get($product, 'item_sku');
+                            $sku = data_get($item, 'item_sku');
 
                             ShopeeProduct::updateOrCreate([
                                 'id' => $item_id
                             ], [
-                                'category_id' => data_get($product, 'category_id'),
-                                'name' => data_get($product, 'item_name'),
+                                'category_id' => data_get($item, 'category_id'),
+                                'name' => data_get($item, 'item_name'),
                                 'sku' => $sku && $sku != '' ? $sku : null,
-                                'has_model' => data_get($product, 'has_model'),
+                                'has_model' => data_get($item, 'has_model'),
                             ]);
                         }
                     }
