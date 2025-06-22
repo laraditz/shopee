@@ -40,20 +40,20 @@ php artisan migrate
 
 Below are all methods available under this package.
 
-| Service name | Method name                | Description                                                                          |
-| ------------ | -------------------------- | ------------------------------------------------------------------------------------ |
-| auth()       | accessToken()              | Generate access token.                                                               |
-|              | refreshToken()             | Refresh access token before it expired.                                              |
-| order()      | list()                     | Get an order list from specified date range.                                         |
-|              | detail()                   | Get an order detail by order SN.                                                     |
-| payment()    | escrowDetail()             | Get the accounting detail of an order.                                               |
-| shop()       | generateAuthorizationURL() | Get shop authorization URL for shop to authorize.                                    |
-|              | getInfo()                  | Get shop information.                                                                |
-| product()    | list()                     | Get a list of items.                                                                 |
-|              | baseInfo()                 | Get basic info of item by item_id list.                                              |
-|              | extraInfo()                | Get extra info of item by item_id list.                                              |
-|              | search()                   | Use this call to search item.                                                        |
-|              | updateStock()              | Update one item_id for each call, but still can support updating multiple model_ids. |
+| Service name | Method name                | Description                                                            |
+| ------------ | -------------------------- | ---------------------------------------------------------------------- |
+| auth()       | accessToken()              | Generate access token.                                                 |
+|              | refreshToken()             | Refresh access token before it expired.                                |
+| shop()       | generateAuthorizationURL() | Get shop authorization URL for shop to authorize.                      |
+|              | getInfo()                  | Get shop information.                                                  |
+| order()      | list()                     | Get an order list from specified date range.                           |
+|              | detail()                   | Get an order detail by order SN.                                       |
+| payment()    | escrowDetail()             | Get the accounting detail of an order.                                 |
+| product()    | list()                     | Get a list of items.                                                   |
+|              | baseInfo()                 | Get basic info of item by item_id list.                                |
+|              | extraInfo()                | Get extra info of item by item_id list.                                |
+|              | search()                   | Use this call to search item.                                          |
+|              | updateStock()              | Update one item_id for each call, support updating multiple model_ids. |
 
 ## Usage
 
