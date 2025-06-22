@@ -3,6 +3,7 @@
 namespace Laraditz\Shopee\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ShopeeProduct extends Model
@@ -26,5 +27,10 @@ class ShopeeProduct extends Model
     public function shop(): BelongsTo
     {
         return $this->belongsTo(ShopeeShop::class);
+    }
+
+    public function models(): HasMany
+    {
+        return $this->hasMany(ShopeeProductModel::class, 'product_id');
     }
 }

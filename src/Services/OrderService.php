@@ -50,10 +50,16 @@ class OrderService extends BaseService
         return null;
     }
 
-    public function detail(string $order_sn, array $extraFields = [])
+    public function detail(string $order_sn, array $extra_fields = [], ?int $shop_id = null)
     {
-        $order = ShopeeOrder::findOrFail($order_sn);
-        $shop = $order->shop;
+        $order = ShopeeOrder::find($order_sn);
+        $shop = null;
+
+        if (!$order && $shop_id) {
+            $shop = ShopeeShop::findOrFail($shop_id);
+        } elseif ($order) {
+            $shop = $order?->shop;
+        }
 
         throw_if(
             !$shop,
@@ -79,8 +85,8 @@ class OrderService extends BaseService
             'order_sn_list' => $order_sn,
         ];
 
-        if (count($extraFields) > 0) {
-            $payload['response_optional_fields'] = implode(',', $extraFields);
+        if (count($extra_fields) > 0) {
+            $payload['response_optional_fields'] = implode(',', $extra_fields);
         }
 
         $response = $this->route($route)
@@ -89,7 +95,6 @@ class OrderService extends BaseService
             ->execute();
 
         if ($response) {
-
             return data_get($response, 'response.order_list.0');
         }
 
