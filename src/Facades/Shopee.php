@@ -1,13 +1,13 @@
 <?php
 
-namespace Laraditz\Shopee;
+namespace Laraditz\Facades\Shopee;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
  * @see \Laraditz\Shopee\Skeleton\SkeletonClass
  */
-class ShopeeFacade extends Facade
+class Shopee extends Facade
 {
     /**
      * Get the registered name of the component.

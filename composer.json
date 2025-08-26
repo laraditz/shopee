@@ -46,7 +46,7 @@
         "Laraditz\\Shopee\\ShopeeServiceProvider"
       ],
       "aliases": {
-        "Shopee": "Laraditz\\Shopee\\ShopeeFacade"
+        "Shopee": "Laraditz\\Shopee\\Facades\\Shopee"
       }
     }
   }
