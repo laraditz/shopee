@@ -1,6 +1,6 @@
 <?php
 
-namespace Laraditz\Facades\Shopee;
+namespace Laraditz\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
