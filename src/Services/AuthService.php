@@ -8,7 +8,7 @@ use Laraditz\Shopee\Enums\EntityType;
 
 class AuthService extends BaseService
 {
-    public function accessToken(int $entity_id, string $entity_type = EntityType::Shop): ?ShopeeAccessToken
+    public function accessToken(int $entity_id, EntityType $entity_type = EntityType::Shop): ?ShopeeAccessToken
     {
         $partner_id = $this->shopee->getPartnerId();
         $route = 'auth.token';

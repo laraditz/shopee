@@ -2,8 +2,9 @@
 
 namespace Laraditz\Shopee\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laraditz\Shopee\Enums\ShopStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ShopeeShop extends Model
 {
@@ -15,6 +16,7 @@ class ShopeeShop extends Model
 
     protected $casts = [
         'id' => 'integer',
+        'status' => ShopStatus::class,
     ];
 
     public function accessToken()
