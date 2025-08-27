@@ -26,21 +26,21 @@ class ShopService extends BaseService
         return $this->shopee->getUrl($route, $query_string);
     }
 
-    // public function getInfo(?int $id = null)
-    // {
-    //     $shop = $this->shopee->getShop();
+    public function getInfo(?int $id = null)
+    {
+        $shop = $this->shopee->getShop();
 
-    //     if ($id !== null) {
-    //         $shop = ShopeeShop::findOrFail($id);
-    //     }
+        if ($id !== null) {
+            $shop = ShopeeShop::findOrFail($id);
+        }
 
-    //     throw_if(!$shop, LogicException::class, __(__('Shop not found.')));
+        throw_if(!$shop, LogicException::class, __(__('Shop not found.')));
 
-    //     $route = 'shop.get_info';
+        $route = 'shop.get_info';
 
-    //     return $this->route($route)
-    //         ->execute();
-    // }
+        return $this->route($route)
+            ->execute();
+    }
 
     public function afterGetInfoResponse(ShopeeRequest $request, ?array $result = [])
     {
