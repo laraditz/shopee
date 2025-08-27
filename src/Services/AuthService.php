@@ -10,10 +10,10 @@ class AuthService extends BaseService
 {
     public function accessToken(int $entity_id, string $entity_type = EntityType::Shop): ?ShopeeAccessToken
     {
-        $partner_id = app('shopee')->getPartnerId();
+        $partner_id = $this->shopee->getPartnerId();
         $route = 'auth.token';
-        $path = app('shopee')->getPath($route);
-        $signature = app('shopee')->helper()->generateSignature($path);
+        $path = $this->shopee->getPath($route);
+        $signature = $this->shopee->generateSignature($path);
         $payload = [];
         $entity = null;
 
@@ -36,7 +36,9 @@ class AuthService extends BaseService
             'partner_id' => $partner_id,
         ], $payload);
 
-        $response =  $this->method('post')
+        // dd($query_string, $payload, $entity, $partner_id, $path, $signature);
+
+        $response = $this->method('post')
             ->route($route)
             ->queryString($query_string)
             ->payload($payload)
@@ -78,7 +80,7 @@ class AuthService extends BaseService
             $payload['shop_id'] = $shopeeAccessToken->entity_id;
         }
 
-        $response =  $this->method('post')
+        $response = $this->method('post')
             ->route($route)
             ->queryString($query_string)
             ->payload($payload)

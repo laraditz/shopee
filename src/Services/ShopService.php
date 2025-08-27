@@ -4,15 +4,16 @@ namespace Laraditz\Shopee\Services;
 
 use Laraditz\Shopee\Models\ShopeeShop;
 use Laraditz\Shopee\Enums\ShopStatus;
+use LogicException;
 
 class ShopService extends BaseService
 {
     public function generateAuthorizationURL()
     {
-        $partner_id = app('shopee')->getPartnerId();
+        $partner_id = $this->shopee->getPartnerId();
         $route = 'shop.auth_partner';
-        $path = app('shopee')->getPath($route);
-        $signature = app('shopee')->helper()->generateSignature($path);
+        $path = $this->shopee->getPath($route);
+        $signature = $this->shopee->generateSignature($path);
 
         $query_string = [
             'partner_id' => $partner_id,
@@ -21,24 +22,30 @@ class ShopService extends BaseService
             'timestamp' => $signature['time'],
         ];
 
-        return app('shopee')->getUrl($route, $query_string);
+        return $this->shopee->getUrl($route, $query_string);
     }
 
-    public function getInfo(int $id)
+    public function getInfo(?int $id = null)
     {
-        $shop = ShopeeShop::findOrFail($id);
+        $shop = $this->shopee->getShop();
 
-        $partner_id = app('shopee')->getPartnerId();
+        if ($id !== null) {
+            $shop = ShopeeShop::findOrFail($id);
+        }
+
+        throw_if(!$shop, LogicException::class, __(__('Shop not found.')));
+
+        $partner_id = $this->shopee->getPartnerId();
         $route = 'shop.get_info';
-        $path = app('shopee')->getPath($route);
+        $path = $this->shopee->getPath($route);
         $access_token = data_get($shop, 'accessToken.access_token');
-        $signature = app('shopee')->helper()->generateSignature($path, [$access_token, $id]);
+        $signature = $this->shopee->generateSignature($path, [$access_token, $shop->id]);
 
         $query_string = [
             'partner_id' => $partner_id,
             'timestamp' => $signature['time'],
             'access_token' => $access_token,
-            'shop_id' => $id,
+            'shop_id' => $shop->id,
             'sign' => $signature['signature'],
         ];
 

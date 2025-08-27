@@ -2,6 +2,7 @@
 
 namespace Laraditz\Shopee\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Laraditz\Shopee\Models\ShopeeShop;
@@ -27,7 +28,7 @@ class ShopController extends Controller
 
         // get access token
         if ($shop) {
-            $response =  app('shopee')->auth()->accessToken($shop->id, EntityType::Shop);
+            $response = app('shopee')->auth()->accessToken($shop->id, EntityType::Shop);
 
             if ($response && $response instanceof \Laraditz\Shopee\Models\ShopeeAccessToken) {
                 $shopResponse = app('shopee')->shop()->getInfo($shop->id);
@@ -40,6 +41,15 @@ class ShopController extends Controller
                     ]);
                 }
             }
+
+            $shop->refresh();
+
+            return view('shopee::shops.authorized', [
+                'code' => $request->code,
+                'shop' => $shop,
+            ]);
         }
+
+        throw new Exception(__('Shop not found.'));
     }
 }

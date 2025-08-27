@@ -2,9 +2,14 @@
 
 namespace Laraditz\Shopee\Services;
 
-use Illuminate\Support\Facades\Http;
+use BadMethodCallException;
 use Illuminate\Support\Str;
+use Laraditz\Shopee\Shopee;
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Http;
 use Laraditz\Shopee\Models\ShopeeRequest;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
 
 class BaseService
 {
@@ -16,6 +21,50 @@ class BaseService
 
     private $payload = [];
 
+    public string $methodName;
+
+    public string $serviceName;
+
+    public string $fqcn;
+
+    public ?PendingRequest $client = null;
+
+
+    public function __construct(
+        public Shopee $shopee,
+    ) {
+    }
+
+    public function __call($methodName, $arguments)
+    {
+        $oClass = new \ReflectionClass(get_called_class());
+
+        $this->fqcn = $oClass->getName();
+        $this->serviceName = $oClass->getShortName();
+        $this->methodName = $methodName;
+
+        // if method exists, return       
+        if (method_exists($this, $methodName)) {
+            return $this->$methodName(...$arguments);
+        }
+
+        if (in_array(Str::snake($methodName), $this->getAllowedMethods())) {
+
+            if (count($arguments) > 0) {
+                $this->setPayload($arguments);
+            }
+
+            $this->client = $this->getClient();
+
+            return $this->execute();
+        }
+
+        throw new BadMethodCallException(sprintf(
+            'Method %s::%s does not exist.',
+            $this->fqcn,
+            $methodName
+        ));
+    }
 
     protected function execute()
     {
@@ -30,7 +79,7 @@ class BaseService
             // dd($url, $this->getPayload());
         }
 
-        $response = Http::asJson();
+        $response = $this->getClient();
 
         if (app()->environment('local')) {
             $response->withoutVerifying();
@@ -52,7 +101,23 @@ class BaseService
 
         $response = $response->$method($url, $payload);
 
-        $response->throw();
+        $response->throw(function (Response $response, RequestException $e) use ($request) {
+            $result = $response->json();
+            $error = data_get($result, 'error');
+            $request_id = data_get($result, 'request_id');
+
+            if ($error) {
+                $request->update([
+                    'response' => $result,
+                    'request_id' => $request_id,
+                    'error' => $error
+                ]);
+            } else {
+                $request->update([
+                    'error' => Str::limit($e->getMessage(), 99)
+                ]);
+            }
+        });
 
         if ($response->successful()) {
             $request->update([
@@ -150,5 +215,17 @@ class BaseService
         $trace = $e->getTrace();
         //position 0 would be the line that called this function so we ignore it
         return data_get($trace, '2.function');
+    }
+
+    protected function getAllowedMethods(): array
+    {
+        $route_prefix = Str::of($this->serviceName)->remove('Service')->snake()->lower()->value;
+
+        return array_keys(config('shopee.routes.' . $route_prefix) ?? []);
+    }
+
+    private function getClient(): PendingRequest
+    {
+        return Http::asJson();
     }
 }
