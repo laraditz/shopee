@@ -6,6 +6,7 @@
 return [
     'partner_id' => env('SHOPEE_PARTNER_ID'),
     'partner_key' => env('SHOPEE_PARTNER_KEY'),
+    'shop_id' => env('SHOPEE_SHOP_ID'),
     'sandbox' => [
         'mode' => env('SHOPEE_SANDBOX_MODE', false),
         'base_url' => 'https://openplatform.sandbox.test-stable.shopee.sg',

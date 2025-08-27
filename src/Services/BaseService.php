@@ -70,7 +70,9 @@ class BaseService
     {
         $oClass = new \ReflectionClass(get_called_class());
         $service_name = $oClass->getShortName();
+        $this->serviceName = $service_name;
         $called_method = $this->getCalledMethod();
+        $this->methodName = $called_method;
 
         $method = $this->getMethod();
         $url = $this->getUrl();
@@ -85,10 +87,17 @@ class BaseService
             $response->withoutVerifying();
         }
 
+        $queryString = $this->getQueryString();
+        $commonParameters = $this->getCommonParameters();
+
+        $queryString = array_merge($commonParameters, $queryString);
+
+        $this->setQueryString($queryString);
+
         $payload = $this->getPayload();
 
         if ($method == 'get') {
-            $payload = array_merge($this->getQueryString(), $this->getPayload());
+            $payload = array_merge($queryString, $this->getPayload());
         }
 
         $request = ShopeeRequest::create([
@@ -114,28 +123,64 @@ class BaseService
                 ]);
             } else {
                 $request->update([
-                    'error' => Str::limit($e->getMessage(), 99)
+                    'error' => Str::limit($e->getMessage(), limit: 97)
                 ]);
             }
         });
 
         if ($response->successful()) {
+            $result = $response->json();
+
             $request->update([
-                'response' => $response->json(),
-                'request_id' => data_get($response->json(), 'request_id'),
-                'error' => data_get($response->json(), 'error')
+                'response' => $result,
+                'request_id' => data_get($result, 'request_id'),
+                'error' => data_get($result, 'error')
             ]);
 
-            return $response->json();
+            $this->afterResponse(request: $request, result: $result);
+
+            return $result;
         }
+    }
+
+    private function afterResponse(ShopeeRequest $request, ?array $result = []): void
+    {
+        $methodName = 'after' . Str::studly($this->methodName) . 'Response';
+
+        if (method_exists($this, $methodName)) {
+            $this->$methodName($request, $result);
+        }
+    }
+
+    public function getCommonParameters(): array
+    {
+        $params = [];
+        $shop = $this->shopee->getShop();
+        $partner_id = $this->shopee->getPartnerId();
+        $route = $this->getRoute();
+        $path = $this->shopee->getPath($route);
+        $access_token = data_get($shop, 'accessToken.access_token');
+        $signature = $this->shopee->generateSignature($path, [$access_token, $shop?->id]);
+
+        if ($partner_id && $shop && $access_token && $signature) {
+            $params = [
+                'partner_id' => $partner_id,
+                'timestamp' => $signature['time'],
+                'access_token' => $access_token,
+                'shop_id' => $shop->id,
+                'sign' => $signature['signature'],
+            ];
+        }
+
+        return $params;
     }
 
     protected function getUrl()
     {
         if ($this->getMethod() === 'get') {
-            return app('shopee')->getUrl($this->getRoute());
+            return $this->shopee->getUrl($this->getRoute());
         } else {
-            return app('shopee')->getUrl($this->getRoute(), $this->getQueryString());
+            return $this->shopee->getUrl($this->getRoute(), $this->getQueryString());
         }
     }
 

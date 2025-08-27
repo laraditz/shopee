@@ -2,9 +2,10 @@
 
 namespace Laraditz\Shopee\Services;
 
-use Laraditz\Shopee\Models\ShopeeShop;
-use Laraditz\Shopee\Enums\ShopStatus;
 use LogicException;
+use Laraditz\Shopee\Enums\ShopStatus;
+use Laraditz\Shopee\Models\ShopeeShop;
+use Laraditz\Shopee\Models\ShopeeRequest;
 
 class ShopService extends BaseService
 {
@@ -25,32 +26,36 @@ class ShopService extends BaseService
         return $this->shopee->getUrl($route, $query_string);
     }
 
-    public function getInfo(?int $id = null)
+    // public function getInfo(?int $id = null)
+    // {
+    //     $shop = $this->shopee->getShop();
+
+    //     if ($id !== null) {
+    //         $shop = ShopeeShop::findOrFail($id);
+    //     }
+
+    //     throw_if(!$shop, LogicException::class, __(__('Shop not found.')));
+
+    //     $route = 'shop.get_info';
+
+    //     return $this->route($route)
+    //         ->execute();
+    // }
+
+    public function afterGetInfoResponse(ShopeeRequest $request, ?array $result = [])
     {
-        $shop = $this->shopee->getShop();
+        if ($result) {
+            $status = data_get($result, 'status');
 
-        if ($id !== null) {
-            $shop = ShopeeShop::findOrFail($id);
+            if ($status) {
+                $status = ucfirst(strtolower($status));
+            }
+
+            $this->shopee->getShop()?->update([
+                'name' => data_get($result, 'shop_name'),
+                'region' => data_get($result, 'region'),
+                'status' => ShopStatus::tryFromName($status),
+            ]);
         }
-
-        throw_if(!$shop, LogicException::class, __(__('Shop not found.')));
-
-        $partner_id = $this->shopee->getPartnerId();
-        $route = 'shop.get_info';
-        $path = $this->shopee->getPath($route);
-        $access_token = data_get($shop, 'accessToken.access_token');
-        $signature = $this->shopee->generateSignature($path, [$access_token, $shop->id]);
-
-        $query_string = [
-            'partner_id' => $partner_id,
-            'timestamp' => $signature['time'],
-            'access_token' => $access_token,
-            'shop_id' => $shop->id,
-            'sign' => $signature['signature'],
-        ];
-
-        return $this->route($route)
-            ->queryString($query_string)
-            ->execute();
     }
 }

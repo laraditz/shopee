@@ -32,21 +32,7 @@ class ShopController extends Controller
             $response = app('shopee')->auth()->accessToken($shop->id, EntityType::Shop);
 
             if ($response && $response instanceof \Laraditz\Shopee\Models\ShopeeAccessToken) {
-                $shopResponse = app('shopee')->shop()->getInfo($shop->id);
-
-                if ($shopResponse) {
-                    $status = data_get($shopResponse, 'status');
-
-                    if ($status) {
-                        $status = ucfirst(strtolower($status));
-                    }
-
-                    $shop->update([
-                        'name' => data_get($shopResponse, 'shop_name'),
-                        'region' => data_get($shopResponse, 'region'),
-                        'status' => ShopStatus::tryFromName($status),
-                    ]);
-                }
+                app('shopee')->shopId($shop->id)->shop()->getInfo();
             }
 
             $shop->refresh();

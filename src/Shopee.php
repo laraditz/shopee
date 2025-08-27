@@ -20,10 +20,7 @@ class Shopee
     ) {
         $this->setPartnerId($this->partner_id ?? config('shopee.partner_id'));
         $this->setPartnerKey($this->partner_key ?? config('shopee.partner_key'));
-
-        if ($this->shop_id) {
-            $this->setShopId($this->shop_id);
-        }
+        $this->setShopId($this->shop_id ?? config('shopee.shop_id'));
     }
 
     public function __call($method, $arguments)
@@ -50,6 +47,7 @@ class Shopee
             ($this->getShop() === null && $this->getShopId())
             || ($this->getShop() && $this->getShop()?->id !== $this->getShopId())
         ) {
+
             $shopeeShop = ShopeeShop::firstOrCreate(['id' => $this->getShopId()], []);
             if ($shopeeShop) {
                 $this->setShop($shopeeShop);
