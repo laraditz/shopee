@@ -53,9 +53,4 @@ class ShopService extends BaseService
             ->queryString($query_string)
             ->execute();
     }
-
-    public function getEnumStatus(string $status)
-    {
-        return ShopStatus::getValue(ucfirst(strtolower($status))) ?? null;
-    }
 }
