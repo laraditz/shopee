@@ -8,7 +8,7 @@ return [
     'partner_key' => env('SHOPEE_PARTNER_KEY'),
     'sandbox' => [
         'mode' => env('SHOPEE_SANDBOX_MODE', false),
-        'base_url' => 'https://partner.test-stable.shopeemobile.com',
+        'base_url' => 'https://openplatform.sandbox.test-stable.shopee.sg',
     ],
     'base_url' => 'https://partner.shopeemobile.com',
     'routes' => [
