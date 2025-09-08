@@ -13,25 +13,24 @@ use Illuminate\Http\Client\RequestException;
 
 class BaseService
 {
-    private $method = 'get';
-
-    private $route;
-
-    private $queryString = [];
-
-    private $payload = [];
-
     public string $methodName;
 
     public string $serviceName;
 
     public string $fqcn;
 
+    public string $routePath;
+
     public ?PendingRequest $client = null;
 
 
     public function __construct(
         public Shopee $shopee,
+        private ?string $route = '',
+        private ?string $method = 'get',
+        private ?array $queryString = [], // for url query string
+        private ?array $payload = [], // for body payload
+        private null|array|string|int $params = null, // for path variables
     ) {
     }
 
@@ -54,7 +53,7 @@ class BaseService
                 $this->setPayload($arguments);
             }
 
-            $this->client = $this->getClient();
+            $this->setRouteFromConfig($this->fqcn, $this->methodName);
 
             return $this->execute();
         }
@@ -74,8 +73,8 @@ class BaseService
         $called_method = $this->getCalledMethod();
         $this->methodName = $called_method;
 
-        $method = $this->getMethod();
         $url = $this->getUrl();
+        $method = $this->getMethod();
 
         if ($this->getRoute() == 'shop.get_info') {
             // dd($url, $this->getPayload());
@@ -177,11 +176,51 @@ class BaseService
 
     protected function getUrl()
     {
-        if ($this->getMethod() === 'get') {
-            return $this->shopee->getUrl($this->getRoute());
-        } else {
-            return $this->shopee->getUrl($this->getRoute(), $this->getQueryString());
+        $params = $this->getParams();
+        $route = $this->shopee->getPath($this->getRoute());
+
+        $split = Str::of($route)->explode(' ');
+
+        if (count($split) == 2) {
+            $this->setMethod(data_get($split, '0'));
+            $this->setRoutePath(data_get($split, '1'));
+        } elseif (count($split) == 1) {
+            $this->setRoutePath(data_get($split, '0'));
         }
+
+        if ($params) {
+            if (is_array($params)) {
+                $mappedParams = collect($params)->mapWithKeys(fn($value, $key) => ["{" . $key . "}" => $value]);
+
+                $this->setRoutePath(Str::swap($mappedParams->toArray(), $this->getRoutePath()));
+            } elseif (is_string($params) || is_numeric($params)) {
+                $this->setRoutePath(str_replace('{id}', $params, $this->getRoutePath()));
+            }
+        }
+
+        if ($this->getMethod() === 'get') {
+            return $this->shopee->getUrl($this->getRoutePath());
+        } else {
+            return $this->shopee->getUrl($this->getRoutePath(), $this->getQueryString());
+        }
+    }
+
+    protected function setRoutePath(string $routePath): void
+    {
+        $this->routePath = $routePath;
+    }
+
+    protected function getRoutePath()
+    {
+        return $this->routePath;
+    }
+
+    private function setRouteFromConfig(string $fqcn, string $method): void
+    {
+        $route_prefix = Str::of($fqcn)->afterLast('\\')->remove('Service')->lower()->value;
+        $route_name = Str::of($method)->snake()->value;
+
+        $this->route($route_prefix . '.' . $route_name);
     }
 
     protected function route($route)
@@ -252,6 +291,16 @@ class BaseService
     protected function getQueryString()
     {
         return $this->queryString;
+    }
+
+    protected function setParams(null|array|string|int $params): void
+    {
+        $this->params = $params;
+    }
+
+    protected function getParams(): null|array|string|int
+    {
+        return $this->params;
     }
 
     public function getCalledMethod()

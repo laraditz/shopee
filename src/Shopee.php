@@ -74,14 +74,13 @@ class Shopee
     public function getUrl(string $path, array $query = [])
     {
         $sandbox_mode = config('shopee.sandbox.mode');
-        $route = config('shopee.routes.' . $path);
         $url = config('shopee.base_url');
 
         if ($sandbox_mode === true) {
             $url = config('shopee.sandbox.base_url');
         }
 
-        $url .= $route;
+        $url .= $path;
 
         if (count($query)) {
             $url .= '?' . http_build_query($query);

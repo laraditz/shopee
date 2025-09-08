@@ -23,24 +23,27 @@ class ShopService extends BaseService
             'timestamp' => $signature['time'],
         ];
 
-        return $this->shopee->getUrl($route, $query_string);
+        return $this->shopee->getUrl($path, $query_string);
     }
 
-    public function getInfo(?int $id = null)
-    {
-        $shop = $this->shopee->getShop();
+    // public function getInfo(?int $id = null)
+    // {
+    //     $shop = $this->shopee->getShop();
 
-        if ($id !== null) {
-            $shop = ShopeeShop::findOrFail($id);
-        }
+    //     if ($id !== null) {
+    //         $shop = ShopeeShop::findOrFail($id);
+    //         if ($shop) {
+    //             $this->shopee->setShop($shop);
+    //         }
+    //     }
 
-        throw_if(!$shop, LogicException::class, __(__('Shop not found.')));
+    //     throw_if(!$shop, LogicException::class, __(__('Shop not found.')));
 
-        $route = 'shop.get_info';
+    //     $route = 'shop.get_info';
 
-        return $this->route($route)
-            ->execute();
-    }
+    //     return $this->route($route)
+    //         ->execute();
+    // }
 
     public function afterGetInfoResponse(ShopeeRequest $request, ?array $result = [])
     {
