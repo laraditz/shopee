@@ -78,7 +78,6 @@ class BaseService
             $this->methodName = $called_method;
         }
 
-
         $url = $this->getUrl();
         $method = $this->getMethod();
 
@@ -92,29 +91,27 @@ class BaseService
             $response->withoutVerifying();
         }
 
-        $queryString = $this->getQueryString();
+        $payload = $this->getPayload();
         $commonParameters = $this->getCommonParameters();
 
-        $queryString = array_merge($commonParameters, $queryString);
-
-        $this->setQueryString($queryString);
-
-        $payload = $this->getPayload();
-
-        if ($method == 'get') {
-            $payload = array_merge($queryString, $this->getPayload());
+        if (strtolower($method) != 'get') {
+            $this->setQueryString(array_merge($commonParameters, $this->getQueryString()));
+            $url = $this->getUrl();
+        } else {
+            $payload = array_merge($commonParameters, $payload);
+            $this->setPayload($payload);
         }
 
         $request = ShopeeRequest::create([
             'shop_id' => $this->shopee->getShopId(),
             'action' => $this->serviceName . '::' . $this->methodName,
             'url' => $url,
-            'request' => $payload,
+            'request' => $this->getPayload() && count($this->getPayload()) > 0 ? $this->getPayload() : null,
         ]);
 
         // dd($url, $payload);
 
-        $response = $response->$method($url, $payload);
+        $response = $response->$method($url, $this->getPayload());
 
         $response->throw(function (Response $response, RequestException $e) use ($request) {
             $result = $response->json();
@@ -164,7 +161,7 @@ class BaseService
         $shop = $this->shopee->getShop();
         $partner_id = $this->shopee->getPartnerId();
         $route = $this->getRoute();
-        $path = $this->shopee->getPath($route);
+        $path = $this->getRoutePath();
         $access_token = data_get($shop, 'accessToken.access_token');
         $signature = $this->shopee->generateSignature($path, [$access_token, $shop?->id]);
 
