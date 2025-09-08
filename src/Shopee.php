@@ -23,6 +23,11 @@ class Shopee
         $this->setShopId($this->shop_id ?? config('shopee.shop_id'));
     }
 
+    public static function make(...$args): static
+    {
+        return new static(...$args);
+    }
+
     public function __call($method, $arguments)
     {
         throw_if(!$this->getPartnerId(), LogicException::class, __('Missing Partner ID.'));
