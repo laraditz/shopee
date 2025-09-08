@@ -13,13 +13,13 @@ use Illuminate\Http\Client\RequestException;
 
 class BaseService
 {
-    public string $methodName;
+    public string $methodName = '';
 
-    public string $serviceName;
+    public string $serviceName = '';
 
-    public string $fqcn;
+    public string $fqcn = '';
 
-    public string $routePath;
+    public string $routePath = '';
 
     public ?PendingRequest $client = null;
 
@@ -68,10 +68,16 @@ class BaseService
     protected function execute()
     {
         $oClass = new \ReflectionClass(get_called_class());
-        $service_name = $oClass->getShortName();
-        $this->serviceName = $service_name;
-        $called_method = $this->getCalledMethod();
-        $this->methodName = $called_method;
+        if (!$this->serviceName) {
+            $service_name = $oClass->getShortName();
+            $this->serviceName = $service_name;
+        }
+
+        if (!$this->methodName) {
+            $called_method = $this->getCalledMethod();
+            $this->methodName = $called_method;
+        }
+
 
         $url = $this->getUrl();
         $method = $this->getMethod();
@@ -100,7 +106,8 @@ class BaseService
         }
 
         $request = ShopeeRequest::create([
-            'action' => $service_name . '::' . $called_method,
+            'shop_id' => $this->shopee->getShopId(),
+            'action' => $this->serviceName . '::' . $this->methodName,
             'url' => $url,
             'request' => $payload,
         ]);
