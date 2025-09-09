@@ -25,6 +25,9 @@ return [
         'order' => [
             'get_list' => '/api/v2/order/get_order_list',
             'get_detail' => '/api/v2/order/get_order_detail',
+            //use naming same as shopee 
+            'get_order_list' => '/api/v2/order/get_order_list',
+            'get_order_detail' => '/api/v2/order/get_order_detail',
         ],
         'payment' => [
             'get_escrow_detail' => '/api/v2/payment/get_escrow_detail',

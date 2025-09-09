@@ -2,8 +2,9 @@
 
 namespace Laraditz\Shopee\Services;
 
-use Laraditz\Shopee\Models\ShopeeOrder;
 use Laraditz\Shopee\Models\ShopeeShop;
+use Laraditz\Shopee\Models\ShopeeOrder;
+use Laraditz\Shopee\Models\ShopeeRequest;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class OrderService extends BaseService
@@ -99,5 +100,35 @@ class OrderService extends BaseService
         }
 
         return null;
+    }
+
+    public function afterGetOrderListResponse(ShopeeRequest $request, ?array $result = [])
+    {
+        $order_list = data_get($result, 'response.order_list');
+
+        if ($order_list && count($order_list) > 0) {
+            foreach ($order_list as $order) {
+                ShopeeOrder::firstOrCreate([
+                    'id' => $order['order_sn'],
+                    'shop_id' => $request->shop_id
+                ]);
+            }
+        }
+    }
+
+    public function afterGetOrderDetailResponse(ShopeeRequest $request, ?array $result = [])
+    {
+        $order_list = data_get($result, 'response.order_list');
+
+        if ($order_list && count($order_list) > 0) {
+            foreach ($order_list as $order) {
+                ShopeeOrder::updateOrCreate([
+                    'id' => $order['order_sn'],
+                    'shop_id' => $request->shop_id
+                ], [
+                    'status' => $order['order_status'] ?? null,
+                ]);
+            }
+        }
     }
 }
