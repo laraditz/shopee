@@ -163,9 +163,19 @@ class BaseService
         $route = $this->getRoute();
         $path = $this->getRoutePath();
         $access_token = data_get($shop, 'accessToken.access_token');
-        $signature = $this->shopee->generateSignature($path, [$access_token, $shop?->id]);
 
-        if ($partner_id && $shop && $access_token && $signature) {
+
+        if (in_array($route, ['auth.token', 'auth.refresh_token'])) {
+            $signature = $this->shopee->generateSignature($path);
+
+            $params = [
+                'partner_id' => $partner_id,
+                'timestamp' => $signature['time'],
+                'sign' => $signature['signature'],
+            ];
+        } elseif ($partner_id && $shop && $access_token) {
+            $signature = $this->shopee->generateSignature($path, [$access_token, $shop?->id]);
+
             $params = [
                 'partner_id' => $partner_id,
                 'timestamp' => $signature['time'],

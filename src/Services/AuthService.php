@@ -12,16 +12,8 @@ class AuthService extends BaseService
     {
         $partner_id = $this->shopee->getPartnerId();
         $route = 'auth.token';
-        $path = $this->shopee->getPath($route);
-        $signature = $this->shopee->generateSignature($path);
         $payload = [];
         $entity = null;
-
-        $query_string = [
-            'sign' => $signature['signature'],
-            'partner_id' => $partner_id,
-            'timestamp' => $signature['time'],
-        ];
 
         if ($entity_type == EntityType::MainAccount) {
             $payload['main_account_id'] = $entity_id;
@@ -36,11 +28,10 @@ class AuthService extends BaseService
             'partner_id' => $partner_id,
         ], $payload);
 
-        // dd($query_string, $payload, $entity, $partner_id, $path, $signature);
+        // dd($payload, $entity, $partner_id);
 
         $response = $this->method('post')
             ->route($route)
-            ->queryString($query_string)
             ->payload($payload)
             ->execute();
 
@@ -61,15 +52,7 @@ class AuthService extends BaseService
     {
         $partner_id = app('shopee')->getPartnerId();
         $route = 'auth.refresh_token';
-        $path = app('shopee')->getPath($route);
-        $signature = app('shopee')->helper()->generateSignature($path);
         $payload = [];
-
-        $query_string = [
-            'sign' => $signature['signature'],
-            'partner_id' => $partner_id,
-            'timestamp' => $signature['time'],
-        ];
 
         $payload = [
             'refresh_token' => $shopeeAccessToken->refresh_token,
@@ -82,7 +65,6 @@ class AuthService extends BaseService
 
         $response = $this->method('post')
             ->route($route)
-            ->queryString($query_string)
             ->payload($payload)
             ->execute();
 
