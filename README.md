@@ -182,7 +182,7 @@ try {
 
 ## Webhook Integration
 
-This package provides comprehensive webhook support for real-time notifications from Shopee.
+This package provides comprehensive webhook support for real-time notifications from Shopee. Refer to [Push Mecahnism](https://open.shopee.com/push-mechanism/5) documentation for more details.
 
 ### Event Handling
 
