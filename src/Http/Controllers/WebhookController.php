@@ -31,15 +31,15 @@ class WebhookController extends Controller
             // add order if not exists
             if (Arr::has($data, ['ordersn', 'shop_id', 'code']) && data_get($data, 'code') == 3) {
                 ShopeeOrder::updateOrCreate([
-                    'id' => $data['ordersn']
-                ], [
+                    'id' => $data['ordersn'],
                     'shop_id' => $data['shop_id'],
+                ], [
                     'status' => data_get($data, 'status')
                 ]);
             }
         } else {
             // no payload received
-            logger()->error('Shopee webhook : No payload');
+            // logger()->error('Shopee webhook : No payload');
         }
     }
 }
