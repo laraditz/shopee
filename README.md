@@ -2,9 +2,12 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/laraditz/shopee.svg?style=flat-square)](https://packagist.org/packages/laraditz/shopee)
 [![Total Downloads](https://img.shields.io/packagist/dt/laraditz/shopee.svg?style=flat-square)](https://packagist.org/packages/laraditz/shopee)
+[![License](https://img.shields.io/packagist/l/laraditz/my-invois.svg?style=flat-square)](./LICENSE.md)
 ![GitHub Actions](https://github.com/laraditz/shopee/actions/workflows/main.yml/badge.svg)
 
-Laravel package for interacting with Shopee API.
+A comprehensive Laravel package for seamlessly integrating with the Shopee Open Platform API. This package provides an elegant, fluent interface for managing shops, products, orders, and payments on Shopee's marketplace.
+
+<a href="https://www.buymeacoffee.com/raditzfarhan" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 50px !important;width: 200px !important;" ></a>
 
 ## Installation
 
@@ -14,14 +17,15 @@ You can install the package via composer:
 composer require laraditz/shopee
 ```
 
-## Before Start
+## Before Starting
 
-Configure your variables in your `.env` (recommended) or you can publish the config file and change it there.
+Configure your Shopee API credentials in your `.env` file (recommended) or publish and modify the config file.
 
-```
-SHOPEE_SANDBOX_MODE=true # true or false for sandbox mode
+```env
+SHOPEE_SANDBOX_MODE=true # Set to false for production
 SHOPEE_PARTNER_ID=<your_shopee_partner_id>
-SHOPEE_PARTNER_KEY=<your_shopee_partner_id>
+SHOPEE_PARTNER_KEY=<your_shopee_partner_key>
+SHOPEE_SHOP_ID=<your_shopee_shop_id>
 ```
 
 (Optional) You can publish the config file via this command:
@@ -30,101 +34,238 @@ SHOPEE_PARTNER_KEY=<your_shopee_partner_id>
 php artisan vendor:publish --provider="Laraditz\Shopee\ShopeeServiceProvider" --tag="config"
 ```
 
-Run the migration command to create the necessary database table.
+Run the migration command to create the necessary database tables for storing shop data, access tokens, and API request logs.
 
 ```bash
 php artisan migrate
 ```
 
-## Available Methods
+## Available Services & Methods
 
-Below is a list of all available methods in this SDK. For detailed usage, please refer to the [Developer’s Guide](https://open.shopee.com/developer-guide/4) and the [API Reference](https://open.shopee.com/documents/v2/v2.product.get_category?module=89&type=1). Each method name corresponds to its respective API endpoint (converted from `snake_case` → `camelCase`), and all parameters follow the exact definitions provided in the API reference.
+Below is a list of all available methods in this SDK. For detailed usage, please refer to the [Developer’s Guide](https://open.shopee.com/developer-guide/4) and the [API Reference](https://open.shopee.com/documents/v2/v2.product.get_category?module=89&type=1). This package organizes Shopee API endpoints into logical services. Each method name corresponds to its respective API endpoint (converted from `snake_case` → `camelCase`), and all parameters follow the exact definitions provided in the API reference.
 
-### Authorization and Authentication Service `auth()`
+> **Note:** All method parameters must be passed as named arguments, not positional arguments.
 
-| Method           | Description                             | Parameters                                                    |
-| ---------------- | --------------------------------------- | ------------------------------------------------------------- |
-| `accessToken()`  | Generate access token.                  | `code`, `partner_id`, `shop_id` or `main_account_id`          |
-| `refreshToken()` | Refresh access token before it expired. | `refresh_token`, `partner_id`, `shop_id` or `main_account_id` |
+### 🔐 Authorization and Authentication Service `auth()`
 
-### Shop Service `shop()`
+Handles OAuth 2.0 authentication flow and token management.
 
-| Method                       | Description                                       |
-| ---------------------------- | ------------------------------------------------- |
-| `generateAuthorizationURL()` | Get shop authorization URL for shop to authorize. |
-| `getShopInfo()`              | Get shop information.                             |
+| Method           | Description                                      | Parameters                                                    |
+| ---------------- | ------------------------------------------------ | ------------------------------------------------------------- |
+| `accessToken()`  | Generate access token from authorization code    | `code`, `partner_id`, `shop_id` or `main_account_id`          |
+| `refreshToken()` | Refresh access token before expiration (4 hours) | `refresh_token`, `partner_id`, `shop_id` or `main_account_id` |
 
-### Product Service `product()`
+### 🏪 Shop Service `shop()`
 
-| Method               | Description                                                            | Parameters                                                                 |
-| -------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| `getItemList()`      | Get a list of items.                                                   | `offset`, `page_size`, `item_status`, `update_time_from`, `update_time_to` |
-| `getItemBaseInfo()`  | Get basic info of item by item_id list.                                | `item_id_list`, `need_tax_info`, `need_complaint_policy`                   |
-| `getItemExtraInfo()` | Get extra info of item by item_id list.                                | `item_id_list`                                                             |
-| `getModelList()`     | Get model list of an item.                                             | `item_id`                                                                  |
-| `searchItem()`       | Use this call to search item.                                          | `item_name`, `item_sku`, `item_status`, `offset`, `page_size` and more     |
-| `updateStock()`      | Update one item_id for each call, support updating multiple model_ids. | `item_id`, `stock_list`                                                    |
+Manages shop information and authorization processes.
 
-### Order Service `order()`
+| Method                       | Description                                        |
+| ---------------------------- | -------------------------------------------------- |
+| `generateAuthorizationURL()` | Generate authorization URL for shop authorization  |
+| `getShopInfo()`              | Retrieve comprehensive shop information and status |
 
-| Method             | Description                                  | Parameters                                                                  |
-| ------------------ | -------------------------------------------- | --------------------------------------------------------------------------- |
-| `getOrderList()`   | Get an order list from specified date range. | `time_range_field`, `time_from`, `time_to`, `page_size`, `cursor` and more  |
-| `getOrderDetail()` | Get an order detail by order SN.             | `order_sn_list`, `request_order_status_pending`, `response_optional_fields` |
+### 📦 Product Service `product()`
 
-### Payment Service `payment()`
+Comprehensive product and inventory management capabilities.
 
-| Method              | Description                            | Parameters |
-| ------------------- | -------------------------------------- | ---------- |
-| `getEscrowDetail()` | Get the accounting detail of an order. | `order_sn` |
+| Method               | Description                                                 | Parameters                                                                 |
+| -------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `getItemList()`      | Retrieve paginated list of shop items with filters          | `offset`, `page_size`, `item_status`, `update_time_from`, `update_time_to` |
+| `getItemBaseInfo()`  | Get basic product information including pricing and status  | `item_id_list`, `need_tax_info`, `need_complaint_policy`                   |
+| `getItemExtraInfo()` | Get extended product details like dimensions and attributes | `item_id_list`                                                             |
+| `getModelList()`     | Retrieve all variants/models for a specific product         | `item_id`                                                                  |
+| `searchItem()`       | Search products by name, SKU, or status with pagination     | `item_name`, `item_sku`, `item_status`, `offset`, `page_size` and more     |
+| `updateStock()`      | Update inventory levels for product variants in bulk        | `item_id`, `stock_list`                                                    |
 
-## Usage
+### 🛒 Order Service `order()`
 
-You may call the method by chaining the service name before calling the method name.
+Handles order management and retrieval with detailed tracking information.
+
+| Method             | Description                                            | Parameters                                                                  |
+| ------------------ | ------------------------------------------------------ | --------------------------------------------------------------------------- |
+| `getOrderList()`   | Retrieve paginated orders within specified date range  | `time_range_field`, `time_from`, `time_to`, `page_size`, `cursor` and more  |
+| `getOrderDetail()` | Get comprehensive order details by order serial number | `order_sn_list`, `request_order_status_pending`, `response_optional_fields` |
+
+### 💰 Payment Service `payment()`
+
+Manages payment and financial transaction details.
+
+| Method              | Description                                                 | Parameters |
+| ------------------- | ----------------------------------------------------------- | ---------- |
+| `getEscrowDetail()` | Retrieve detailed escrow and payment information for orders | `order_sn` |
+
+## Usage Examples
+
+The package provides a fluent, chainable API interface. Access services by chaining the service name before calling the method.
+
+### Basic Usage
 
 ```php
 use Laraditz\Shopee\Facades\Shopee;
 
-Shopee::order()->getOrderDetail(order_sn_list: '211020BNFYMXXX');
+// Get order details
+$orderDetails = Shopee::order()->getOrderDetail(
+    order_sn_list: '211020BNFYMXXX,211020BNFYXXX2'
+);
 
-// or using service container
-app('shopee')->order()->getOrderDetail(order_sn_list: '211020BNFYMXXX');
+// Get shop information
+$shopInfo = Shopee::shop()->getShopInfo();
 
+// Search products
+$products = Shopee::product()->searchItem(
+    item_name: 'smartphone',
+    page_size: 20,
+    offset: 0
+);
+
+// Alternative: using service container
+$orders = app('shopee')->order()->getOrderList(
+    time_range_field: 'create_time',
+    time_from: strtotime('-30 days'),
+    time_to: time(),
+    page_size: 50
+);
 ```
 
-By default, it will use the `SHOPEE_SHOP_ID` from the `.env` for each request. But if you would like to specify the shop ID on request, you may do so as example below.
+### Multi-Shop Support
+
+By default, the package uses `SHOPEE_SHOP_ID` from your `.env` file. For multi-shop applications, specify the shop ID per request:
 
 ```php
 use Laraditz\Shopee\Facades\Shopee;
 
-$items = Shopee::make(shop_id: '2257XXXXX')->product()->getItemList(offset: 0, page_size: 10, item_status: 'NORMAL');
+// Method 1: Using make() with shop_id
+$products = Shopee::make(shop_id: '2257XXXXX')
+    ->product()
+    ->getItemList(
+        offset: 0,
+        page_size: 10,
+        item_status: 'NORMAL'
+    );
 
+// Method 2: Using shopId() method
+$orders = Shopee::shopId('2257XXXXX')
+    ->order()
+    ->getOrderList(
+        time_range_field: 'create_time',
+        time_from: strtotime('-7 days'),
+        time_to: time()
+    );
 ```
 
-## Event
+### Error Handling
 
-This package also provide an event to allow your application to listen for Shopee web push. You can create your listener and register it under event below.
+```php
+use Laraditz\Shopee\Facades\Shopee;
+use Illuminate\Http\Client\RequestException;
 
-| Event                                  | Description                         |
-| -------------------------------------- | ----------------------------------- |
-| Laraditz\Shopee\Events\WebhookReceived | Receive a push content from Shopee. |
+try {
+    $result = Shopee::product()->updateStock(
+        item_id: 123456789,
+        stock_list: [
+            [
+                'model_id' => 123123123,
+                'seller_stock' => [
+                    [
+                        'location_id' => 'MYZ',
+                        'stock' => 100,
+                    ]
+                ],
+            ]
+        ]
+    );
+} catch (RequestException $e) {
+    // Handle HTTP/network errors
+    logger()->error('Request failed: ' . $e->getMessage());
+}
+```
 
-## Webhook URL
+## Webhook Integration
 
-You may setup the URL below on shopee open API dashboard so that Shopee will push all content update to this url and trigger the `WebhookReceived` event above.
+This package provides comprehensive webhook support for real-time notifications from Shopee.
+
+### Event Handling
+
+Create listeners for webhook events to automatically process updates from Shopee:
+
+| Event                                    | Description                                             |
+| ---------------------------------------- | ------------------------------------------------------- |
+| `Laraditz\Shopee\Events\WebhookReceived` | Triggered when receiving push notifications from Shopee |
+
+### Setting Up Webhooks
+
+**Configure Webhook URL**: In your Shopee Open Platform dashboard, set the webhook URL to:
 
 ```
 https://your-app-url/shopee/webhooks
 ```
 
-## Commands
+**Create Event Listeners to Handle Webhook Data**: Create a listener to process incoming data:
 
-```bash
-shopee:flush-expired-token    Flush expired access token.
-shopee:refresh-token          Refresh existing access token before it expired.
+```php
+<?php
+
+namespace App\Listeners;
+
+use Laraditz\Shopee\Events\WebhookReceived;
+
+class YourWebhookListener
+{
+    public function handle(WebhookReceived $event)
+    {
+        $webhookData = $event->data;
+
+        // Process order updates, product changes, etc.
+        if ($webhookData['event'] === 'order_status_update') {
+            // Handle order status changes
+        }
+    }
+}
 ```
 
-As Shopee access token expired in 4 hours, you may want to set `shopee:refresh-token` on scheduler and run it before it expires to refresh the access token. Otherwise, you need to reauthorize the shop and generate a new access token.
+**Register Event Listeners**: Register listeners in your `EventServiceProvider` (Laravel 10 and below):
+
+```php
+use Laraditz\Shopee\Events\WebhookReceived;
+
+protected $listen = [
+    WebhookReceived::class => [
+        YourWebhookListener::class,
+    ],
+];
+```
+
+## Artisan Commands
+
+The package provides convenient Artisan commands for token management:
+
+```bash
+# Remove expired access tokens from database
+php artisan shopee:flush-expired-token
+
+# Refresh existing access tokens before expiration
+php artisan shopee:refresh-token
+```
+
+### Automated Token Refresh
+
+Since Shopee access tokens expire every 4 hours, it's recommended to schedule the refresh command to run automatically. Add this to your `app/Console/Kernel.php`:
+
+```php
+protected function schedule(Schedule $schedule)
+{
+    // Refresh tokens every 3 hours to prevent expiration
+    $schedule->command('shopee:refresh-token')
+             ->everyThreeHours()
+             ->withoutOverlapping();
+
+    // Clean up expired tokens daily
+    $schedule->command('shopee:flush-expired-token')
+             ->daily();
+}
+```
+
+> **Important**: Without automatic refresh, expired tokens will require shop reauthorization and manual token generation.
 
 ### Changelog
 
