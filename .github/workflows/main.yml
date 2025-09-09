@@ -2,9 +2,9 @@ name: run-tests
 
 on:
     push:
-        branches: [master]
+        branches: [master, develop]
     pull_request:
-        branches: [master]
+        branches: [master, develop]
 
 jobs:
     test:
@@ -13,18 +13,29 @@ jobs:
             fail-fast: true
             matrix:
                 os: [ubuntu-latest, windows-latest]
-                php: [7.4, 8.0]
-                laravel: [8.*]
+                php: [8.0, 8.1, 8.2, 8.3]
+                laravel: [9.*, 10.*, 11.*, 12.*]
                 stability: [prefer-lowest, prefer-stable]
                 include:
-                    - laravel: 8.*
-                      testbench: ^6.6
+                    - laravel: 9.*
+                      testbench: ^7.0
+                    - laravel: 10.*
+                      testbench: ^8.0
+                    - laravel: 11.*
+                      testbench: ^9.0
+                    - laravel: 12.*
+                      testbench: ^10.0
+                exclude:
+                    - laravel: 11.*
+                      php: 8.0
+                    - laravel: 12.*
+                      php: 8.0
 
         name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
@@ -37,9 +48,11 @@ jobs:
               run: |
                   echo "::add-matcher::${{ runner.tool_cache }}/php.json"
                   echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
             - name: Install dependencies
               run: |
                   composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
                   composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+
             - name: Execute tests
               run: vendor/bin/phpunit
