@@ -21,6 +21,8 @@ return [
         'shop' => [
             'auth_partner' => '/api/v2/shop/auth_partner',
             'get_info' => '/api/v2/shop/get_shop_info',
+            //use naming same as shopee 
+            'get_shop_info' => '/api/v2/shop/get_shop_info',
         ],
         'order' => [
             'get_list' => '/api/v2/order/get_order_list',

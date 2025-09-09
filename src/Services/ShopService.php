@@ -61,4 +61,21 @@ class ShopService extends BaseService
             ]);
         }
     }
+
+    public function afterGetShopInfoResponse(ShopeeRequest $request, ?array $result = [])
+    {
+        if ($result) {
+            $status = data_get($result, 'status');
+
+            if ($status) {
+                $status = ucfirst(strtolower($status));
+            }
+
+            $this->shopee->getShop()?->update([
+                'name' => data_get($result, 'shop_name'),
+                'region' => data_get($result, 'region'),
+                'status' => ShopStatus::tryFromName($status),
+            ]);
+        }
+    }
 }
