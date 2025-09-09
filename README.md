@@ -38,33 +38,58 @@ php artisan migrate
 
 ## Available Methods
 
-Below are all methods available under this package.
+Below is a list of all available methods in this SDK. For detailed usage, please refer to the [Developer’s Guide](https://open.shopee.com/developer-guide/4) and the [API Reference](https://open.shopee.com/documents/v2/v2.product.get_category?module=89&type=1). Each method name corresponds to its respective API endpoint (converted from `snake_case` → `camelCase`), and all parameters follow the exact definitions provided in the API reference.
 
-| Service name | Method name                | Description                                                            |
-| ------------ | -------------------------- | ---------------------------------------------------------------------- |
-| auth()       | accessToken()              | Generate access token.                                                 |
-|              | refreshToken()             | Refresh access token before it expired.                                |
-| shop()       | generateAuthorizationURL() | Get shop authorization URL for shop to authorize.                      |
-|              | getInfo()                  | Get shop information.                                                  |
-| order()      | list()                     | Get an order list from specified date range.                           |
-|              | detail()                   | Get an order detail by order SN.                                       |
-| payment()    | escrowDetail()             | Get the accounting detail of an order.                                 |
-| product()    | list()                     | Get a list of items.                                                   |
-|              | baseInfo()                 | Get basic info of item by item_id list.                                |
-|              | extraInfo()                | Get extra info of item by item_id list.                                |
-|              | search()                   | Use this call to search item.                                          |
-|              | updateStock()              | Update one item_id for each call, support updating multiple model_ids. |
+### Authorization and Authentication Service `auth()`
+
+| Method           | Description                             | Parameters                                                    |
+| ---------------- | --------------------------------------- | ------------------------------------------------------------- |
+| `accessToken()`  | Generate access token.                  | `code`, `partner_id`, `shop_id` or `main_account_id`          |
+| `refreshToken()` | Refresh access token before it expired. | `refresh_token`, `partner_id`, `shop_id` or `main_account_id` |
+
+### Shop Service `shop()`
+
+| Method                       | Description                                       |
+| ---------------------------- | ------------------------------------------------- |
+| `generateAuthorizationURL()` | Get shop authorization URL for shop to authorize. |
+| `getShopInfo()`              | Get shop information.                             |
+
+### Product Service `product()`
+
+| Method               | Description                                                            | Parameters                                                                 |
+| -------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `getItemList()`      | Get a list of items.                                                   | `offset`, `page_size`, `item_status`, `update_time_from`, `update_time_to` |
+| `getItemBaseInfo()`  | Get basic info of item by item_id list.                                | `item_id_list`, `need_tax_info`, `need_complaint_policy`                   |
+| `getItemExtraInfo()` | Get extra info of item by item_id list.                                | `item_id_list`                                                             |
+| `getModelList()`     | Get model list of an item.                                             | `item_id`                                                                  |
+| `searchItem()`       | Use this call to search item.                                          | `item_name`, `item_sku`, `item_status`, `offset`, `page_size` and more     |
+| `updateStock()`      | Update one item_id for each call, support updating multiple model_ids. | `item_id`, `stock_list`                                                    |
+
+### Order Service `order()`
+
+| Method             | Description                                  | Parameters                                                                  |
+| ------------------ | -------------------------------------------- | --------------------------------------------------------------------------- |
+| `getOrderList()`   | Get an order list from specified date range. | `time_range_field`, `time_from`, `time_to`, `page_size`, `cursor` and more  |
+| `getOrderDetail()` | Get an order detail by order SN.             | `order_sn_list`, `request_order_status_pending`, `response_optional_fields` |
+
+### Payment Service `payment()`
+
+| Method              | Description                            | Parameters |
+| ------------------- | -------------------------------------- | ---------- |
+| `getEscrowDetail()` | Get the accounting detail of an order. | `order_sn` |
 
 ## Usage
 
 You may call the method by chaining the service name before calling the method name.
 
 ```php
-// Using service container
-app('shopee')->order()->detail('211020BNFYMXXX');
+use Laraditz\Shopee\Facades\Shopee;
 
-// Using facade
-\Shopee::order()->detail('211020BNFYMXXX');
+Shopee::order()->getOrderDetail(order_sn_list: '211020BNFYMXXX');
+
+// or using service container
+app('shopee')->order()->getOrderDetail(order_sn_list: '211020BNFYMXXX');
+
 ```
 
 ## Event
