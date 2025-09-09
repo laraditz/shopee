@@ -2,6 +2,24 @@
 
 All notable changes to `laraditz/shopee` package will be documented in this file
 
+## 1.1.1 - 2025-09-10
+
+### Added
+
+- Add `shopee_webhooks` table
+- Add `ShopeeWebhook` model
+- Enhanced webhook controller to automatically store all incoming push notifications
+
+### Changed
+
+- Update `ShopeeRequest` model to use `HasUuids` trait
+- Improve webhook handling architecture for better data persistence and tracking
+- Update README documentation with enhanced webhook integration guide
+
+### Database Changes
+
+- Add `shopee_webhooks` table for storing webhook push data from Shopee
+
 ## 1.1.0 - 2025-09-10
 
 ### Added
