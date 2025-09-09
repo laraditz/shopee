@@ -8,20 +8,12 @@ use Laraditz\Shopee\Enums\EntityType;
 
 class AuthService extends BaseService
 {
-    public function accessToken(int $entity_id, string $entity_type = EntityType::Shop): ?ShopeeAccessToken
+    public function accessToken(int $entity_id, EntityType $entity_type = EntityType::Shop): ?ShopeeAccessToken
     {
-        $partner_id = app('shopee')->getPartnerId();
+        $partner_id = $this->shopee->getPartnerId();
         $route = 'auth.token';
-        $path = app('shopee')->getPath($route);
-        $signature = app('shopee')->helper()->generateSignature($path);
         $payload = [];
         $entity = null;
-
-        $query_string = [
-            'sign' => $signature['signature'],
-            'partner_id' => $partner_id,
-            'timestamp' => $signature['time'],
-        ];
 
         if ($entity_type == EntityType::MainAccount) {
             $payload['main_account_id'] = $entity_id;
@@ -36,9 +28,10 @@ class AuthService extends BaseService
             'partner_id' => $partner_id,
         ], $payload);
 
-        $response =  $this->method('post')
+        // dd($payload, $entity, $partner_id);
+
+        $response = $this->method('post')
             ->route($route)
-            ->queryString($query_string)
             ->payload($payload)
             ->execute();
 
@@ -59,15 +52,7 @@ class AuthService extends BaseService
     {
         $partner_id = app('shopee')->getPartnerId();
         $route = 'auth.refresh_token';
-        $path = app('shopee')->getPath($route);
-        $signature = app('shopee')->helper()->generateSignature($path);
         $payload = [];
-
-        $query_string = [
-            'sign' => $signature['signature'],
-            'partner_id' => $partner_id,
-            'timestamp' => $signature['time'],
-        ];
 
         $payload = [
             'refresh_token' => $shopeeAccessToken->refresh_token,
@@ -78,9 +63,8 @@ class AuthService extends BaseService
             $payload['shop_id'] = $shopeeAccessToken->entity_id;
         }
 
-        $response =  $this->method('post')
+        $response = $this->method('post')
             ->route($route)
-            ->queryString($query_string)
             ->payload($payload)
             ->execute();
 

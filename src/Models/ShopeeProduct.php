@@ -3,14 +3,16 @@
 namespace Laraditz\Shopee\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class ShopeeOrder extends Model
+class ShopeeProduct extends Model
 {
-    use HasFactory;
+    protected $fillable = ['id', 'shop_id', 'status', 'category_id', 'name', 'sku', 'has_model'];
 
-    protected $fillable = ['id', 'shop_id', 'status'];
+    protected $casts = [
+        'has_model' => 'boolean',
+    ];
 
     public function getIncrementing(): bool
     {
@@ -25,5 +27,10 @@ class ShopeeOrder extends Model
     public function shop(): BelongsTo
     {
         return $this->belongsTo(ShopeeShop::class);
+    }
+
+    public function models(): HasMany
+    {
+        return $this->hasMany(ShopeeProductModel::class, 'product_id');
     }
 }

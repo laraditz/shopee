@@ -2,8 +2,8 @@
 
 namespace Laraditz\Shopee\Enums;
 
-class EntityType extends Enums
+enum EntityType: int
 {
-    const MainAccount = 1;
-    const Shop        = 2;
+    case MainAccount = 1;
+    case Shop = 2;
 }

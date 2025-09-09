@@ -13,10 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('shopee_orders', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->unsignedBigInteger('shop_id');
-            $table->timestamps();
+        Schema::table('shopee_orders', function (Blueprint $table) {
+            $table->string('status', 50)->nullable()->after('shop_id');
         });
     }
 
@@ -27,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('shopee_orders');
+        Schema::table('shopee_orders', function (Blueprint $table) {
+            $table->dropColumn('status');
+        });
     }
 };

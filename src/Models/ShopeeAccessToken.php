@@ -11,6 +11,10 @@ class ShopeeAccessToken extends Model
 
     protected $fillable = ['entity_type', 'entity_id', 'access_token', 'refresh_token', 'expires_at'];
 
+    protected $casts = [
+        'expires_at' => 'datetime',
+    ];
+
     public function entity()
     {
         return $this->morphTo();

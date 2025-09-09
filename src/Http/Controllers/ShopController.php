@@ -2,10 +2,12 @@
 
 namespace Laraditz\Shopee\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Exception;
 use Illuminate\Support\Str;
-use Laraditz\Shopee\Models\ShopeeShop;
+use Illuminate\Http\Request;
 use Laraditz\Shopee\Enums\EntityType;
+use Laraditz\Shopee\Enums\ShopStatus;
+use Laraditz\Shopee\Models\ShopeeShop;
 use Illuminate\Validation\UnauthorizedException;
 
 class ShopController extends Controller
@@ -27,19 +29,20 @@ class ShopController extends Controller
 
         // get access token
         if ($shop) {
-            $response =  app('shopee')->auth()->accessToken($shop->id, EntityType::Shop);
+            $response = app('shopee')->auth()->accessToken($shop->id, EntityType::Shop);
 
             if ($response && $response instanceof \Laraditz\Shopee\Models\ShopeeAccessToken) {
-                $shopResponse = app('shopee')->shop()->getInfo($shop->id);
-
-                if ($shopResponse) {
-                    $shop->update([
-                        'name' => data_get($shopResponse, 'shop_name'),
-                        'region' => data_get($shopResponse, 'region'),
-                        'status' => app('shopee')->shop()->getEnumStatus(data_get($shopResponse, 'status')),
-                    ]);
-                }
+                app('shopee')->shopId($shop->id)->shop()->getInfo();
             }
+
+            $shop->refresh();
+
+            return view('shopee::shops.authorized', [
+                'code' => $request->code,
+                'shop' => $shop,
+            ]);
         }
+
+        throw new Exception(__('Shop not found.'));
     }
 }

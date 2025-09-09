@@ -2,15 +2,16 @@
 
 namespace Laraditz\Shopee\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ShopeeRequest extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id', 'action', 'url', 'request_id', 'request', 'response', 'error'];
+    protected $fillable = ['id', 'shop_id', 'action', 'url', 'request_id', 'request', 'response', 'error'];
 
     /**
      * The attributes that should be cast.
@@ -39,5 +40,10 @@ class ShopeeRequest extends Model
         static::creating(function ($model) {
             $model->{$model->getKeyName()} = $model->id ?? (string) Str::orderedUuid();
         });
+    }
+
+    public function shop(): BelongsTo
+    {
+        return $this->belongsTo(ShopeeShop::class);
     }
 }

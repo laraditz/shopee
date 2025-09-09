@@ -29,11 +29,12 @@ class WebhookController extends Controller
             event(new WebhookReceived($data));
 
             // add order if not exists
-            if (Arr::has($data, ['ordersn', 'shop_id'])) {
+            if (Arr::has($data, ['ordersn', 'shop_id', 'code']) && data_get($data, 'code') == 3) {
                 ShopeeOrder::updateOrCreate([
                     'id' => $data['ordersn']
                 ], [
-                    'shop_id' => $data['shop_id']
+                    'shop_id' => $data['shop_id'],
+                    'status' => data_get($data, 'status')
                 ]);
             }
         } else {

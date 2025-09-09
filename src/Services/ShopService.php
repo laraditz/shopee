@@ -2,17 +2,19 @@
 
 namespace Laraditz\Shopee\Services;
 
-use Laraditz\Shopee\Models\ShopeeShop;
+use LogicException;
 use Laraditz\Shopee\Enums\ShopStatus;
+use Laraditz\Shopee\Models\ShopeeShop;
+use Laraditz\Shopee\Models\ShopeeRequest;
 
 class ShopService extends BaseService
 {
     public function generateAuthorizationURL()
     {
-        $partner_id = app('shopee')->getPartnerId();
+        $partner_id = $this->shopee->getPartnerId();
         $route = 'shop.auth_partner';
-        $path = app('shopee')->getPath($route);
-        $signature = app('shopee')->helper()->generateSignature($path);
+        $path = $this->shopee->getPath($route);
+        $signature = $this->shopee->generateSignature($path);
 
         $query_string = [
             'partner_id' => $partner_id,
@@ -21,34 +23,59 @@ class ShopService extends BaseService
             'timestamp' => $signature['time'],
         ];
 
-        return app('shopee')->getUrl($route, $query_string);
+        return $this->shopee->getUrl($path, $query_string);
     }
 
-    public function getInfo(int $id)
+    // public function getInfo(?int $id = null)
+    // {
+    //     $shop = $this->shopee->getShop();
+
+    //     if ($id !== null) {
+    //         $shop = ShopeeShop::findOrFail($id);
+    //         if ($shop) {
+    //             $this->shopee->setShop($shop);
+    //         }
+    //     }
+
+    //     throw_if(!$shop, LogicException::class, __(__('Shop not found.')));
+
+    //     $route = 'shop.get_info';
+
+    //     return $this->route($route)
+    //         ->execute();
+    // }
+
+    public function afterGetInfoResponse(ShopeeRequest $request, ?array $result = [])
     {
-        $shop = ShopeeShop::findOrFail($id);
+        if ($result) {
+            $status = data_get($result, 'status');
 
-        $partner_id = app('shopee')->getPartnerId();
-        $route = 'shop.get_info';
-        $path = app('shopee')->getPath($route);
-        $access_token = data_get($shop, 'accessToken.access_token');
-        $signature = app('shopee')->helper()->generateSignature($path, [$access_token, $id]);
+            if ($status) {
+                $status = ucfirst(strtolower($status));
+            }
 
-        $query_string = [
-            'partner_id' => $partner_id,
-            'timestamp' => $signature['time'],
-            'access_token' => $access_token,
-            'shop_id' => $id,
-            'sign' => $signature['signature'],
-        ];
-
-        return $this->route($route)
-            ->queryString($query_string)
-            ->execute();
+            $this->shopee->getShop()?->update([
+                'name' => data_get($result, 'shop_name'),
+                'region' => data_get($result, 'region'),
+                'status' => ShopStatus::tryFromName($status),
+            ]);
+        }
     }
 
-    public function getEnumStatus(string $status)
+    public function afterGetShopInfoResponse(ShopeeRequest $request, ?array $result = [])
     {
-        return ShopStatus::getValue(ucfirst(strtolower($status))) ?? null;
+        if ($result) {
+            $status = data_get($result, 'status');
+
+            if ($status) {
+                $status = ucfirst(strtolower($status));
+            }
+
+            $this->shopee->getShop()?->update([
+                'name' => data_get($result, 'shop_name'),
+                'region' => data_get($result, 'region'),
+                'status' => ShopStatus::tryFromName($status),
+            ]);
+        }
     }
 }

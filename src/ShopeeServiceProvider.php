@@ -17,7 +17,7 @@ class ShopeeServiceProvider extends ServiceProvider
          * Optional methods to load your package assets
          */
         // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'shopee');
-        // $this->loadViewsFrom(__DIR__.'/../resources/views', 'shopee');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'shopee');
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         $this->registerRoutes();
