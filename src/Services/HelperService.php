@@ -46,50 +46,23 @@ class HelperService
         return $return;
     }
 
-    public function getEventName($code)
+    public function getEventName($code): string
     {
-        switch ($code) {
-            case 1:
-                return 'shop_authorization';
-                break;
-            case 2:
-                return 'shop_deauthorization';
-                break;
-            case 3:
-                return 'order_status_update';
-                break;
-            case 4:
-                return 'tracking_no';
-                break;
-            case 5:
-                return 'shopee_updates';
-                break;
-            case 6:
-                return 'banned_item';
-                break;
-            case 7:
-                return 'item_promotion';
-                break;
-            case 8:
-                return 'reserved_stock_change';
-                break;
-            case 9:
-                return 'promotion_update';
-                break;
-            case 10:
-                return 'webchat';
-                break;
-            case 11:
-                return 'video_upload';
-                break;
-            case 12:
-                return 'openapi_authorization_expiry';
-                break;
-            case 13:
-                return 'brand_register_result';
-                break;
-            default:
-                return 'unregistered_event';
-        }
+        return match ($code) {
+            1 => 'shop_authorization',
+            2 => 'shop_deauthorization',
+            3 => 'order_status_update',
+            4 => 'tracking_no',
+            5 => 'shopee_updates',
+            6 => 'banned_item',
+            7 => 'item_promotion',
+            8 => 'reserved_stock_change',
+            9 => 'promotion_update',
+            10 => 'webchat',
+            11 => 'video_upload',
+            12 => 'openapi_authorization_expiry',
+            13 => 'brand_register_result',
+            default => 'unregistered_event',
+        };
     }
 }
