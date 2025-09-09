@@ -92,6 +92,15 @@ app('shopee')->order()->getOrderDetail(order_sn_list: '211020BNFYMXXX');
 
 ```
 
+By default, it will use the `SHOPEE_SHOP_ID` from the `.env` for each request. But if you would like to specify the shop ID on request, you may do so as example below.
+
+```php
+use Laraditz\Shopee\Facades\Shopee;
+
+$items = Shopee::make(shop_id: '2257XXXXX')->product()->getItemList(offset: 0, page_size: 10, item_status: 'NORMAL');
+
+```
+
 ## Event
 
 This package also provide an event to allow your application to listen for Shopee web push. You can create your listener and register it under event below.
