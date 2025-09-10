@@ -2,6 +2,18 @@
 
 All notable changes to `laraditz/shopee` package will be documented in this file
 
+## 1.1.2 - 2025-09-10
+
+### Added
+
+- Add phpunit tests
+- Add `ServiceProviderTest` feature test
+- Add `ShopeeTest` unit test
+
+### Changed
+
+- Update Github Action workflow to reflect changes
+
 ## 1.1.1 - 2025-09-10
 
 ### Added
