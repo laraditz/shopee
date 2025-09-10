@@ -3,7 +3,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/laraditz/shopee.svg?style=flat-square)](https://packagist.org/packages/laraditz/shopee)
 [![Total Downloads](https://img.shields.io/packagist/dt/laraditz/shopee.svg?style=flat-square)](https://packagist.org/packages/laraditz/shopee)
 [![License](https://img.shields.io/packagist/l/laraditz/my-invois.svg?style=flat-square)](./LICENSE.md)
-![GitHub Actions](https://github.com/laraditz/shopee/actions/workflows/main.yml/badge.svg)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/laraditz/shopee/main.yml?branch=master&label=Tests)](https://github.com/laraditz/shopee/actions?query=workflow%3ATests+branch%3Amaster)
 
 A comprehensive Laravel package for seamlessly integrating with the Shopee Open Platform API. This package provides an elegant, fluent interface for managing shops, products, orders, and payments on Shopee's marketplace.
 
