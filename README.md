@@ -50,10 +50,10 @@ Below is a list of all available methods in this SDK. For detailed usage, please
 
 Handles OAuth 2.0 authentication flow and token management.
 
-| Method           | Description                                      | Parameters                                                    |
-| ---------------- | ------------------------------------------------ | ------------------------------------------------------------- |
-| `accessToken()`  | Generate access token from authorization code    | `code`, `partner_id`, `shop_id` or `main_account_id`          |
-| `refreshToken()` | Refresh access token before expiration (4 hours) | `refresh_token`, `partner_id`, `shop_id` or `main_account_id` |
+| Method           | Description                                      | Parameters                            |
+| ---------------- | ------------------------------------------------ | ------------------------------------- |
+| `accessToken()`  | Generate access token from authorization code    | `entity_id`, EntityType `entity_type` |
+| `refreshToken()` | Refresh access token before expiration (4 hours) | ShopeeAccessToken `shopeeAccessToken` |
 
 ### 🏪 Shop Service `shop()`
 

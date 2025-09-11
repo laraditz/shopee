@@ -50,13 +50,13 @@ class AuthService extends BaseService
 
     public function refreshToken(ShopeeAccessToken $shopeeAccessToken): ?ShopeeAccessToken
     {
-        $partner_id = app('shopee')->getPartnerId();
+        $partner_id = $this->shopee->getPartnerId();
         $route = 'auth.refresh_token';
         $payload = [];
 
         $payload = [
             'refresh_token' => $shopeeAccessToken->refresh_token,
-            'partner_id' => $partner_id,
+            'partner_id' => (int) $partner_id,
         ];
 
         if ($shopeeAccessToken->entity instanceof ShopeeShop) {
