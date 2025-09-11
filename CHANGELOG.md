@@ -2,6 +2,12 @@
 
 All notable changes to `laraditz/shopee` package will be documented in this file
 
+## 1.1.3 - 2025-09-11
+
+### Changed
+
+- **BREAKING**: Change webpush data structure by using the original webpush data from Shopee and only attach event name to it.
+
 ## 1.1.2 - 2025-09-10
 
 ### Added

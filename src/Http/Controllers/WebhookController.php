@@ -25,23 +25,30 @@ class WebhookController extends Controller
             $shopId = data_get($receivedData, 'shop_id');
             $code = data_get($receivedData, 'code');
             $timestamp = data_get($receivedData, 'timestamp');
+            $data = data_get($receivedData, 'data');
 
             ShopeeWebhook::create([
                 'shop_id' => $shopId,
                 'code' => $code,
-                'data' => data_get($receivedData, 'data'),
+                'data' => $data,
                 'sent_timestamp' => $timestamp,
             ]);
 
-            $data = app('shopee')->helper()->transformWebhookData($receivedData);
+            // add event name
+            $event_name = app('shopee')->helper()->getEventName($code);
+            if ($event_name) {
+                $receivedData = array_merge(['event' => $event_name], $receivedData);
+            }
 
-            event(new WebhookReceived($data));
+            event(new WebhookReceived($receivedData));
+
+            logger()->info('Shopee webhook : Received', $receivedData);
 
             // add order if not exists
-            if (Arr::has($data, ['ordersn', 'shop_id', 'code']) && (int) $code == 3) {
+            if (data_get($data, 'ordersn') && $shopId && (int) $code === 3) {
                 ShopeeOrder::updateOrCreate([
                     'id' => $data['ordersn'],
-                    'shop_id' => $data['shop_id'],
+                    'shop_id' => $shopId,
                 ], [
                     'status' => data_get($data, 'status')
                 ]);
