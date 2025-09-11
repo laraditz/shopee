@@ -2,6 +2,12 @@
 
 All notable changes to `laraditz/shopee` package will be documented in this file
 
+## 1.1.4 - 2025-09-11
+
+### Fixed
+
+- Fix refresh token bug `partner_id` need to be an integer.
+
 ## 1.1.3 - 2025-09-11
 
 ### Changed
