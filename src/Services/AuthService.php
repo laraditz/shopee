@@ -25,7 +25,7 @@ class AuthService extends BaseService
 
         $payload = array_merge([
             'code' => $entity ? $entity->code : null,
-            'partner_id' => $partner_id,
+            'partner_id' => (int) $partner_id,
         ], $payload);
 
         // dd($payload, $entity, $partner_id);
