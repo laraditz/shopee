@@ -40,6 +40,19 @@ Run the migration command to create the necessary database tables for storing sh
 php artisan migrate
 ```
 
+## Authorization Flow
+
+To authorize a Shopee shop with your app:
+
+1. Visit [Shopee Open Platform Console](https://open.shopee.com/).
+2. On your App List, click `Authorize` link next to the `Test/Live Partner_id`. Alternatively, you can generate the authorization URL using the `generateAuthorizationURL()` method.
+3. Make sure the domain for authorized redirect URL already been whitelisted beforehand.
+4. Enter `https://your-app-url/shopee/shops/authorized` as the Redirect URL and click Next.
+5. Proceed to login using the seller account that you want to authorized to be use for the app.
+6. Shopee redirects back to `https://your-app-url/shopee/shops/authorized`.
+7. Package automatically handles the authorization code exchange and token storage.
+8. Shop is now ready for API calls.
+
 ## Available Services & Methods
 
 Below is a list of all available methods in this SDK. For detailed usage, please refer to the [Developer’s Guide](https://open.shopee.com/developer-guide/4) and the [API Reference](https://open.shopee.com/documents/v2/v2.product.get_category?module=89&type=1). This package organizes Shopee API endpoints into logical services. Each method name corresponds to its respective API endpoint (converted from `snake_case` → `camelCase`), and all parameters follow the exact definitions provided in the API reference.
