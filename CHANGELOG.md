@@ -2,6 +2,12 @@
 
 All notable changes to `laraditz/shopee` package will be documented in this file
 
+## 1.1.5 - 2025-09-20
+
+### Added
+
+- Add `Authorization Flow` section to readme.
+
 ## 1.1.4 - 2025-09-11
 
 ### Fixed

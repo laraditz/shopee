@@ -2,7 +2,7 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/laraditz/shopee.svg?style=flat-square)](https://packagist.org/packages/laraditz/shopee)
 [![Total Downloads](https://img.shields.io/packagist/dt/laraditz/shopee.svg?style=flat-square)](https://packagist.org/packages/laraditz/shopee)
-[![License](https://img.shields.io/packagist/l/laraditz/my-invois.svg?style=flat-square)](./LICENSE.md)
+[![License](https://img.shields.io/packagist/l/laraditz/shopee?style=flat-square)](./LICENSE.md)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/laraditz/shopee/main.yml?branch=master&label=Tests)](https://github.com/laraditz/shopee/actions?query=workflow%3ATests+branch%3Amaster)
 
 A comprehensive Laravel package for seamlessly integrating with the Shopee Open Platform API. This package provides an elegant, fluent interface for managing shops, products, orders, and payments on Shopee's marketplace.
@@ -39,6 +39,19 @@ Run the migration command to create the necessary database tables for storing sh
 ```bash
 php artisan migrate
 ```
+
+## Authorization Flow
+
+To authorize a Shopee shop with your app:
+
+1. Visit [Shopee Open Platform Console](https://open.shopee.com/).
+2. On your App List, click `Authorize` link next to the `Test/Live Partner_id`. Alternatively, you can generate the authorization URL using the `generateAuthorizationURL()` method.
+3. Make sure the domain for authorized redirect URL already been whitelisted beforehand.
+4. Enter `https://your-app-url/shopee/shops/authorized` as the Redirect URL and click Next.
+5. Proceed to login using the seller account that you want to authorized to be use for the app.
+6. Shopee redirects back to `https://your-app-url/shopee/shops/authorized`.
+7. Package automatically handles the authorization code exchange and token storage.
+8. Shop is now ready for API calls.
 
 ## Available Services & Methods
 
