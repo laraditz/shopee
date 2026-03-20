@@ -31,6 +31,13 @@ class ServiceProviderTest extends TestCase
     }
 
     /** @test */
+    public function it_has_redirect_url_config_key()
+    {
+        $this->assertArrayHasKey('redirect_url', config('shopee'));
+        $this->assertNull(config('shopee.redirect_url'));
+    }
+
+    /** @test */
     public function it_registers_commands()
     {
         $commands = $this->app->make('Illuminate\Contracts\Console\Kernel')->all();
