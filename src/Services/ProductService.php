@@ -2,6 +2,7 @@
 
 namespace Laraditz\Shopee\Services;
 
+use Illuminate\Support\Facades\DB;
 use Laraditz\Shopee\Models\ShopeeShop;
 use Laraditz\Shopee\Models\ShopeeProduct;
 use Laraditz\Shopee\Models\ShopeeRequest;
@@ -256,6 +257,70 @@ class ProductService extends BaseService
         return null;
     }
 
+
+    public function afterAddItemResponse(ShopeeRequest $request, ?array $result = [])
+    {
+        $item_id = data_get($result, 'response.item_id');
+
+        if ($item_id) {
+            ShopeeProduct::updateOrCreate(
+                ['id' => $item_id],
+                ['shop_id' => $request->shop_id, 'status' => 'NORMAL']
+            );
+
+            // Fetch full item details to populate name, sku, category_id, has_model
+            app('shopee')
+                ->shopId($request->shop_id)
+                ->product()
+                ->getItemBaseInfo(item_id_list: (string) $item_id);
+        }
+    }
+
+    public function afterUpdateItemResponse(ShopeeRequest $request, ?array $result = [])
+    {
+        // Prefer item_id from response; fall back to request payload
+        $item_id = data_get($result, 'response.item_id')
+            ?? data_get($request->request, 'item_id');
+
+        if ($item_id) {
+            $updates = [];
+
+            $item_name = data_get($request->request, 'item_name');
+            if ($item_name !== null) {
+                $updates['name'] = $item_name;
+            }
+
+            if (!empty($updates)) {
+                ShopeeProduct::where('id', $item_id)
+                    ->where('shop_id', $request->shop_id)
+                    ->update($updates);
+            }
+        }
+    }
+
+    public function afterDeleteItemResponse(ShopeeRequest $request, ?array $result = [])
+    {
+        // Shopee's delete_item response does not include item_id in the body
+        $item_id = data_get($request->request, 'item_id');
+
+        if ($item_id) {
+            DB::transaction(function () use ($item_id, $request) {
+                $product = ShopeeProduct::where('id', $item_id)
+                    ->where('shop_id', $request->shop_id)
+                    ->first();
+
+                if ($product) {
+                    // withTrashed() ensures previously soft-deleted models are also updated.
+                    // Direct update() avoids N+1 and fires no model events (acceptable — no observers exist).
+                    ShopeeProductModel::withTrashed()
+                        ->where('product_id', $product->id)
+                        ->update(['deleted_at' => now()]);
+
+                    $product->delete();
+                }
+            });
+        }
+    }
 
     public function afterGetItemListResponse(ShopeeRequest $request, ?array $result = [])
     {

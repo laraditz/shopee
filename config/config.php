@@ -48,6 +48,9 @@ return [
             'get_item_base_info' => '/api/v2/product/get_item_base_info',
             'get_item_extra_info' => '/api/v2/product/get_item_extra_info',
             'search_item' => '/api/v2/product/search_item',
+            'add_item'    => 'POST /api/v2/product/add_item',
+            'update_item' => 'POST /api/v2/product/update_item',
+            'delete_item' => 'POST /api/v2/product/delete_item',
         ]
     ],
     'middleware' => ['api'],

@@ -3,11 +3,14 @@
 namespace Laraditz\Shopee\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ShopeeProduct extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = ['id', 'shop_id', 'status', 'category_id', 'name', 'sku', 'has_model'];
 
     protected $casts = [
