@@ -2,6 +2,23 @@
 
 All notable changes to `laraditz/shopee` package will be documented in this file
 
+## 1.1.7 - 2026-03-21
+
+### Added
+
+- Add `addItem()` method to `product()` service - creates a new product listing on Shopee via `POST /api/v2/product/add_item`
+- Add `updateItem()` method to `product()` service - updates an existing product listing via `POST /api/v2/product/update_item`
+- Add `deleteItem()` method to `product()` service - deletes a product listing via `POST /api/v2/product/delete_item`
+- Add `afterAddItemResponse()` hook - automatically creates a `ShopeeProduct` stub and fetches full details via `getItemBaseInfo()` after a successful add
+- Add `afterUpdateItemResponse()` hook - updates the local `ShopeeProduct` record with changed fields after a successful update (guards against overwriting fields not included in the request)
+- Add `afterDeleteItemResponse()` hook - cascading soft-deletes the `ShopeeProduct` and all related `ShopeeProductModel` records in a DB transaction after a successful delete
+- Add `SoftDeletes` support to `ShopeeProduct` and `ShopeeProductModel` models
+
+### Database Changes
+
+- Add `deleted_at` column to `shopee_products` table (soft deletes)
+- Add `deleted_at` column to `shopee_product_models` table (soft deletes)
+
 ## 1.1.6 - 2026-03-21
 
 ### Added
@@ -21,7 +38,7 @@ All notable changes to `laraditz/shopee` package will be documented in this file
 
 ### Security
 
-- Incoming `redirect_url` in the authorization callback is validated against `shopee.redirect_url` config exactly — mismatches are silently discarded to prevent open redirect attacks
+- Incoming `redirect_url` in the authorization callback is validated against `shopee.redirect_url` config exactly - mismatches are silently discarded to prevent open redirect attacks
 
 ## 1.1.5 - 2025-09-20
 
