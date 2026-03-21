@@ -2,6 +2,27 @@
 
 All notable changes to `laraditz/shopee` package will be documented in this file
 
+## 1.1.6 - 2026-03-21
+
+### Added
+
+- Add `SHOPEE_REDIRECT_URL` config option to redirect to a user-defined URL after seller authorization completes, instead of rendering the built-in view
+- On successful authorization, the redirect URL receives shop and token data as query parameters: `shop_id`, `shop_name`, `region`, `access_token`, `refresh_token`, `expires_at`
+- On authorization failure, the redirect URL receives `error=token_failed` and `shop_id`
+- Add `SHOPEE_HOME_URL` config option to override the back button destination on the built-in authorization success page (falls back to `APP_URL`)
+- Add `ShopServiceTest` unit tests for `generateAuthorizationURL()`
+- Add `ShopControllerTest` feature tests for the authorization callback
+
+### Changed
+
+- Redesign built-in authorization success page with a dark luxury aesthetic
+- Replace `UnauthorizedException` with `abort(401)` in `ShopController` for correct HTTP response codes
+- Wrap `accessToken()` call in `ShopController` with try/catch to handle HTTP errors gracefully
+
+### Security
+
+- Incoming `redirect_url` in the authorization callback is validated against `shopee.redirect_url` config exactly — mismatches are silently discarded to prevent open redirect attacks
+
 ## 1.1.5 - 2025-09-20
 
 ### Added
