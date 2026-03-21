@@ -64,20 +64,20 @@ SHOPEE_REDIRECT_URL=https://your-app-url/shopee/callback
 
 On success, the package redirects to your URL with the following query parameters:
 
-| Parameter | Description |
-| --- | --- |
-| `shop_id` | Shopee shop ID |
-| `shop_name` | Shop display name |
-| `region` | Shop region (e.g. `MY`, `SG`) |
-| `access_token` | OAuth access token |
-| `refresh_token` | OAuth refresh token |
-| `expires_at` | Token expiry (ISO 8601) |
+| Parameter       | Description                   |
+| --------------- | ----------------------------- |
+| `shop_id`       | Shopee shop ID                |
+| `shop_name`     | Shop display name             |
+| `region`        | Shop region (e.g. `MY`, `SG`) |
+| `access_token`  | OAuth access token            |
+| `refresh_token` | OAuth refresh token           |
+| `expires_at`    | Token expiry (ISO 8601)       |
 
 On failure (e.g. token exchange error), the redirect includes:
 
-| Parameter | Value |
-| --- | --- |
-| `error` | `token_failed` |
+| Parameter | Value          |
+| --------- | -------------- |
+| `error`   | `token_failed` |
 | `shop_id` | Shopee shop ID |
 
 > **Security:** `SHOPEE_REDIRECT_URL` must be an exact absolute URL without query strings. Only requests carrying this exact value are honoured — any other value is silently discarded, preventing open redirect attacks. Use HTTPS in production as tokens are passed in the URL.
@@ -110,14 +110,17 @@ Manages shop information and authorization processes.
 
 Comprehensive product and inventory management capabilities.
 
-| Method               | Description                                                 | Parameters                                                                 |
-| -------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------- |
-| `getItemList()`      | Retrieve paginated list of shop items with filters          | `offset`, `page_size`, `item_status`, `update_time_from`, `update_time_to` |
-| `getItemBaseInfo()`  | Get basic product information including pricing and status  | `item_id_list`, `need_tax_info`, `need_complaint_policy`                   |
-| `getItemExtraInfo()` | Get extended product details like dimensions and attributes | `item_id_list`                                                             |
-| `getModelList()`     | Retrieve all variants/models for a specific product         | `item_id`                                                                  |
-| `searchItem()`       | Search products by name, SKU, or status with pagination     | `item_name`, `item_sku`, `item_status`, `offset`, `page_size` and more     |
-| `updateStock()`      | Update inventory levels for product variants in bulk        | `item_id`, `stock_list`                                                    |
+| Method               | Description                                                 | Parameters                                                                                                                                         |
+| -------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `getItemList()`      | Retrieve paginated list of shop items with filters          | `offset`, `page_size`, `item_status`, `update_time_from`, `update_time_to`                                                                         |
+| `getItemBaseInfo()`  | Get basic product information including pricing and status  | `item_id_list`, `need_tax_info`, `need_complaint_policy`                                                                                           |
+| `getItemExtraInfo()` | Get extended product details like dimensions and attributes | `item_id_list`                                                                                                                                     |
+| `getModelList()`     | Retrieve all variants/models for a specific product         | `item_id`                                                                                                                                          |
+| `searchItem()`       | Search products by name, SKU, or status with pagination     | `item_name`, `item_sku`, `item_status`, `offset`, `page_size` and more                                                                             |
+| `updateStock()`      | Update inventory levels for product variants in bulk        | `item_id`, `stock_list`                                                                                                                            |
+| `addItem()`          | Create a new product listing on Shopee                      | Refer to [Shopee API Reference](https://open.shopee.com/documents/v2/v2.product.add_item?module=89&type=1)                                         |
+| `updateItem()`       | Update an existing product listing                          | `item_id` and any fields to update - refer to [Shopee API Reference](https://open.shopee.com/documents/v2/v2.product.update_item?module=89&type=1) |
+| `deleteItem()`       | Delete a product listing                                    | `item_id`                                                                                                                                          |
 
 ### 🛒 Order Service `order()`
 
@@ -159,6 +162,28 @@ $products = Shopee::product()->searchItem(
     page_size: 20,
     offset: 0
 );
+
+// Add a new product
+$newProduct = Shopee::product()->addItem(
+    item_name: 'My Product',
+    description: 'Product description',
+    original_price: 29.90,
+    normal_stock: 100,
+    weight: 0.5,
+    item_sku: 'SKU-001',
+    category_id: 100001,
+    // ... refer to Shopee API Reference for full parameter list
+);
+
+// Update an existing product
+Shopee::product()->updateItem(
+    item_id: 123456789,
+    item_name: 'Updated Product Name',
+    original_price: 24.90,
+);
+
+// Delete a product
+Shopee::product()->deleteItem(item_id: 123456789);
 
 // Alternative: using service container
 $orders = app('shopee')->order()->getOrderList(
