@@ -103,4 +103,115 @@ class ProductServiceHooksTest extends TestCase
 
         $this->assertDatabaseCount('shopee_products', 0);
     }
+
+    /** @test */
+    public function after_update_item_response_updates_existing_product_name()
+    {
+        ShopeeProduct::create([
+            'id'      => '55',
+            'shop_id' => 1,
+            'status'  => 'NORMAL',
+            'name'    => 'Old Name',
+        ]);
+
+        $shopee = new Shopee(partner_id: 'pid', partner_key: 'pkey', shop_id: 1);
+        $service = new ProductService($shopee);
+
+        $request = ShopeeRequest::create([
+            'shop_id' => 1,
+            'action'  => 'ProductService::updateItem',
+            'url'     => 'https://example.com',
+            'request' => ['item_id' => '55', 'item_name' => 'New Name'],
+        ]);
+
+        $result = ['response' => ['item_id' => '55']];
+
+        $service->afterUpdateItemResponse($request, $result);
+
+        $this->assertDatabaseHas('shopee_products', [
+            'id'   => '55',
+            'name' => 'New Name',
+        ]);
+    }
+
+    /** @test */
+    public function after_update_item_response_does_not_overwrite_name_with_null()
+    {
+        ShopeeProduct::create([
+            'id'      => '66',
+            'shop_id' => 1,
+            'status'  => 'NORMAL',
+            'name'    => 'Keep This Name',
+        ]);
+
+        $shopee = new Shopee(partner_id: 'pid', partner_key: 'pkey', shop_id: 1);
+        $service = new ProductService($shopee);
+
+        $request = ShopeeRequest::create([
+            'shop_id' => 1,
+            'action'  => 'ProductService::updateItem',
+            'url'     => 'https://example.com',
+            'request' => ['item_id' => '66'], // no item_name
+        ]);
+
+        $result = ['response' => ['item_id' => '66']];
+
+        $service->afterUpdateItemResponse($request, $result);
+
+        $this->assertDatabaseHas('shopee_products', [
+            'id'   => '66',
+            'name' => 'Keep This Name',
+        ]);
+    }
+
+    /** @test */
+    public function after_update_item_response_does_not_insert_when_product_not_found()
+    {
+        $shopee = new Shopee(partner_id: 'pid', partner_key: 'pkey', shop_id: 1);
+        $service = new ProductService($shopee);
+
+        $request = ShopeeRequest::create([
+            'shop_id' => 1,
+            'action'  => 'ProductService::updateItem',
+            'url'     => 'https://example.com',
+            'request' => ['item_id' => '999', 'item_name' => 'Ghost'],
+        ]);
+
+        $result = ['response' => ['item_id' => '999']];
+
+        $service->afterUpdateItemResponse($request, $result);
+
+        $this->assertDatabaseCount('shopee_products', 0);
+    }
+
+    /** @test */
+    public function after_update_item_response_falls_back_to_request_item_id()
+    {
+        ShopeeProduct::create([
+            'id'      => '77',
+            'shop_id' => 1,
+            'status'  => 'NORMAL',
+            'name'    => 'Before',
+        ]);
+
+        $shopee = new Shopee(partner_id: 'pid', partner_key: 'pkey', shop_id: 1);
+        $service = new ProductService($shopee);
+
+        $request = ShopeeRequest::create([
+            'shop_id' => 1,
+            'action'  => 'ProductService::updateItem',
+            'url'     => 'https://example.com',
+            'request' => ['item_id' => '77', 'item_name' => 'After'],
+        ]);
+
+        // No item_id in response — should fall back to request payload
+        $result = ['response' => []];
+
+        $service->afterUpdateItemResponse($request, $result);
+
+        $this->assertDatabaseHas('shopee_products', [
+            'id'   => '77',
+            'name' => 'After',
+        ]);
+    }
 }

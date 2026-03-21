@@ -276,6 +276,28 @@ class ProductService extends BaseService
         }
     }
 
+    public function afterUpdateItemResponse(ShopeeRequest $request, ?array $result = [])
+    {
+        // Prefer item_id from response; fall back to request payload
+        $item_id = data_get($result, 'response.item_id')
+            ?? data_get($request->request, 'item_id');
+
+        if ($item_id) {
+            $updates = [];
+
+            $item_name = data_get($request->request, 'item_name');
+            if ($item_name !== null) {
+                $updates['name'] = $item_name;
+            }
+
+            if (!empty($updates)) {
+                ShopeeProduct::where('id', $item_id)
+                    ->where('shop_id', $request->shop_id)
+                    ->update($updates);
+            }
+        }
+    }
+
     public function afterGetItemListResponse(ShopeeRequest $request, ?array $result = [])
     {
         if ($result) {
