@@ -298,6 +298,30 @@ class ProductService extends BaseService
         }
     }
 
+    public function afterDeleteItemResponse(ShopeeRequest $request, ?array $result = [])
+    {
+        // Shopee's delete_item response does not include item_id in the body
+        $item_id = data_get($request->request, 'item_id');
+
+        if ($item_id) {
+            DB::transaction(function () use ($item_id, $request) {
+                $product = ShopeeProduct::where('id', $item_id)
+                    ->where('shop_id', $request->shop_id)
+                    ->first();
+
+                if ($product) {
+                    // withTrashed() ensures previously soft-deleted models are also updated.
+                    // Direct update() avoids N+1 and fires no model events (acceptable — no observers exist).
+                    ShopeeProductModel::withTrashed()
+                        ->where('product_id', $product->id)
+                        ->update(['deleted_at' => now()]);
+
+                    $product->delete();
+                }
+            });
+        }
+    }
+
     public function afterGetItemListResponse(ShopeeRequest $request, ?array $result = [])
     {
         if ($result) {

@@ -214,4 +214,92 @@ class ProductServiceHooksTest extends TestCase
             'name' => 'After',
         ]);
     }
+
+    /** @test */
+    public function after_delete_item_response_soft_deletes_product_and_models()
+    {
+        ShopeeProduct::create([
+            'id'      => '88',
+            'shop_id' => 1,
+            'status'  => 'NORMAL',
+            'name'    => 'To Delete',
+        ]);
+
+        ShopeeProductModel::create(['id' => 'm1', 'product_id' => '88', 'name' => 'Model A']);
+        ShopeeProductModel::create(['id' => 'm2', 'product_id' => '88', 'name' => 'Model B']);
+
+        $shopee = new Shopee(partner_id: 'pid', partner_key: 'pkey', shop_id: 1);
+        $service = new ProductService($shopee);
+
+        $request = ShopeeRequest::create([
+            'shop_id' => 1,
+            'action'  => 'ProductService::deleteItem',
+            'url'     => 'https://example.com',
+            'request' => ['item_id' => '88'],
+        ]);
+
+        $service->afterDeleteItemResponse($request, []);
+
+        $this->assertSoftDeleted('shopee_products', ['id' => '88']);
+        $this->assertNull(ShopeeProduct::find('88'));
+        $this->assertSoftDeleted('shopee_product_models', ['id' => 'm1']);
+        $this->assertSoftDeleted('shopee_product_models', ['id' => 'm2']);
+        $this->assertCount(0, ShopeeProductModel::where('product_id', '88')->get());
+    }
+
+    /** @test */
+    public function after_delete_item_response_does_nothing_when_product_not_found()
+    {
+        $shopee = new Shopee(partner_id: 'pid', partner_key: 'pkey', shop_id: 1);
+        $service = new ProductService($shopee);
+
+        $request = ShopeeRequest::create([
+            'shop_id' => 1,
+            'action'  => 'ProductService::deleteItem',
+            'url'     => 'https://example.com',
+            'request' => ['item_id' => '999'],
+        ]);
+
+        $service->afterDeleteItemResponse($request, []);
+
+        $this->assertDatabaseCount('shopee_products', 0);
+    }
+
+    /** @test */
+    public function after_delete_item_response_does_nothing_when_item_id_missing_from_request()
+    {
+        $shopee = new Shopee(partner_id: 'pid', partner_key: 'pkey', shop_id: 1);
+        $service = new ProductService($shopee);
+
+        $request = ShopeeRequest::create([
+            'shop_id' => 1,
+            'action'  => 'ProductService::deleteItem',
+            'url'     => 'https://example.com',
+            'request' => [],
+        ]);
+
+        $service->afterDeleteItemResponse($request, []);
+
+        $this->assertDatabaseCount('shopee_products', 0);
+    }
+
+    /** @test */
+    public function after_delete_item_response_is_scoped_to_shop_id()
+    {
+        ShopeeProduct::create(['id' => '101', 'shop_id' => 2, 'status' => 'NORMAL']);
+
+        $shopee = new Shopee(partner_id: 'pid', partner_key: 'pkey', shop_id: 1);
+        $service = new ProductService($shopee);
+
+        $request = ShopeeRequest::create([
+            'shop_id' => 1,
+            'action'  => 'ProductService::deleteItem',
+            'url'     => 'https://example.com',
+            'request' => ['item_id' => '101'],
+        ]);
+
+        $service->afterDeleteItemResponse($request, []);
+
+        $this->assertNotNull(ShopeeProduct::find('101'));
+    }
 }
