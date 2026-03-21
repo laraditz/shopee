@@ -2,6 +2,7 @@
 
 namespace Laraditz\Shopee\Services;
 
+use Illuminate\Support\Facades\DB;
 use Laraditz\Shopee\Models\ShopeeShop;
 use Laraditz\Shopee\Models\ShopeeProduct;
 use Laraditz\Shopee\Models\ShopeeRequest;
@@ -256,6 +257,24 @@ class ProductService extends BaseService
         return null;
     }
 
+
+    public function afterAddItemResponse(ShopeeRequest $request, ?array $result = [])
+    {
+        $item_id = data_get($result, 'response.item_id');
+
+        if ($item_id) {
+            ShopeeProduct::updateOrCreate(
+                ['id' => $item_id],
+                ['shop_id' => $request->shop_id, 'status' => 'NORMAL']
+            );
+
+            // Fetch full item details to populate name, sku, category_id, has_model
+            app('shopee')
+                ->shopId($request->shop_id)
+                ->product()
+                ->getItemBaseInfo(item_id_list: (string) $item_id);
+        }
+    }
 
     public function afterGetItemListResponse(ShopeeRequest $request, ?array $result = [])
     {
