@@ -26,6 +26,7 @@ SHOPEE_SANDBOX_MODE=true # Set to false for production
 SHOPEE_PARTNER_ID=<your_shopee_partner_id>
 SHOPEE_PARTNER_KEY=<your_shopee_partner_key>
 SHOPEE_SHOP_ID=<your_shopee_shop_id>
+SHOPEE_REDIRECT_URL=<your_redirect_url> # Optional — see Authorization Flow
 ```
 
 (Optional) You can publish the config file via this command:
@@ -52,6 +53,34 @@ To authorize a Shopee shop with your app:
 6. Shopee redirects back to `https://your-app-url/shopee/shops/authorized`.
 7. Package automatically handles the authorization code exchange and token storage.
 8. Shop is now ready for API calls.
+
+### Custom Redirect After Authorization
+
+By default, the package renders a built-in success page after authorization. To redirect to your own URL instead, set `SHOPEE_REDIRECT_URL` in your `.env`:
+
+```env
+SHOPEE_REDIRECT_URL=https://your-app-url/shopee/callback
+```
+
+On success, the package redirects to your URL with the following query parameters:
+
+| Parameter | Description |
+| --- | --- |
+| `shop_id` | Shopee shop ID |
+| `shop_name` | Shop display name |
+| `region` | Shop region (e.g. `MY`, `SG`) |
+| `access_token` | OAuth access token |
+| `refresh_token` | OAuth refresh token |
+| `expires_at` | Token expiry (ISO 8601) |
+
+On failure (e.g. token exchange error), the redirect includes:
+
+| Parameter | Value |
+| --- | --- |
+| `error` | `token_failed` |
+| `shop_id` | Shopee shop ID |
+
+> **Security:** `SHOPEE_REDIRECT_URL` must be an exact absolute URL without query strings. Only requests carrying this exact value are honoured — any other value is silently discarded, preventing open redirect attacks. Use HTTPS in production as tokens are passed in the URL.
 
 ## Available Services & Methods
 

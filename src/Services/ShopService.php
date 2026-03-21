@@ -15,10 +15,19 @@ class ShopService extends BaseService
         $route = 'shop.auth_partner';
         $path = $this->shopee->getPath($route);
         $signature = $this->shopee->generateSignature($path);
+        $redirect_url = config('shopee.redirect_url');
+
+        $callback = route('shopee.shops.authorized');
+
+        if ($redirect_url) {
+            // Append redirect_url inside the callback URL so Shopee carries it through.
+            // Note: SHOPEE_REDIRECT_URL must not contain a query string.
+            $callback .= '?' . http_build_query(['redirect_url' => $redirect_url]);
+        }
 
         $query_string = [
             'partner_id' => $partner_id,
-            'redirect' => route('shopee.shops.authorized'),
+            'redirect' => $callback,
             'sign' => $signature['signature'],
             'timestamp' => $signature['time'],
         ];
