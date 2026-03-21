@@ -20,4 +20,36 @@ class ProductServiceHooksTest extends TestCase
     {
         $this->assertTrue(Schema::hasColumn('shopee_product_models', 'deleted_at'));
     }
+
+    /** @test */
+    public function shopee_product_uses_soft_deletes()
+    {
+        $product = ShopeeProduct::create([
+            'id' => '111',
+            'shop_id' => 1,
+            'status' => 'NORMAL',
+        ]);
+
+        $product->delete();
+
+        $this->assertSoftDeleted('shopee_products', ['id' => '111']);
+        $this->assertNull(ShopeeProduct::find('111'));
+        $this->assertNotNull(ShopeeProduct::withTrashed()->find('111'));
+    }
+
+    /** @test */
+    public function shopee_product_model_uses_soft_deletes()
+    {
+        $productModel = ShopeeProductModel::create([
+            'id' => '999',
+            'product_id' => null,
+            'name' => 'Red',
+        ]);
+
+        $productModel->delete();
+
+        $this->assertSoftDeleted('shopee_product_models', ['id' => '999']);
+        $this->assertNull(ShopeeProductModel::find('999'));
+        $this->assertNotNull(ShopeeProductModel::withTrashed()->find('999'));
+    }
 }

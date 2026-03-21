@@ -3,10 +3,13 @@
 namespace Laraditz\Shopee\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laraditz\Shopee\Models\ShopeeProduct;
 
 class ShopeeProductModel extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = ['id', 'product_id', 'name', 'sku', 'price_info', 'stock_info', 'status', 'weight', 'dimension'];
 
     protected $casts = [
