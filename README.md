@@ -35,9 +35,10 @@ SHOPEE_REDIRECT_URL=<your_redirect_url> # Optional — see Authorization Flow
 php artisan vendor:publish --provider="Laraditz\Shopee\ShopeeServiceProvider" --tag="config"
 ```
 
-Run the migration command to create the necessary database tables for storing shop data, access tokens, and API request logs.
+Publish and run the migrations to create the necessary database tables for storing shop data, access tokens, and API request logs.
 
 ```bash
+php artisan vendor:publish --provider="Laraditz\Shopee\ShopeeServiceProvider" --tag="migrations"
 php artisan migrate
 ```
 
