@@ -7,10 +7,12 @@ use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
+    public static $latestResponse;
+
     public function setUp(): void
     {
         parent::setUp();
-        
+
         // Run package migrations
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
