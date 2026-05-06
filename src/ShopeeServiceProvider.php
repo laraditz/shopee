@@ -4,6 +4,7 @@ namespace Laraditz\Shopee;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Laraditz\Shopee\Console;
 
 class ShopeeServiceProvider extends ServiceProvider
@@ -19,7 +20,7 @@ class ShopeeServiceProvider extends ServiceProvider
         // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'shopee');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'shopee');
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        // $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         $this->registerRoutes();
 
 
@@ -27,6 +28,8 @@ class ShopeeServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/../config/config.php' => config_path('shopee.php'),
             ], 'config');
+
+            $this->publishMigrations();
 
             // Publishing the views.
             /*$this->publishes([
@@ -82,5 +85,32 @@ class ShopeeServiceProvider extends ServiceProvider
             'prefix' => config('shopee.routes.prefix'),
             'middleware' => config('shopee.middleware'),
         ];
+    }
+
+    protected function publishMigrations()
+    {
+        $databasePath = __DIR__ . '/../database/migrations/';
+        $migrationPath = database_path('migrations/');
+
+        $files = array_diff(scandir($databasePath), array('.', '..'));
+        $date = date('Y_m_d');
+        $time = date('His');
+
+        $migrationFiles = collect($files)
+            ->mapWithKeys(function (string $file) use ($databasePath, $migrationPath, $date, &$time) {
+                $filename = Str::replace(Str::substr($file, 0, 17), '', $file);
+
+                $found = glob($migrationPath . '*' . $filename);
+                $time = date("His", strtotime($time) + 1); // ensure in order
+    
+                return !!count($found) === true ? []
+                    : [
+                        $databasePath . $file => $migrationPath . $date . '_' . $time . $filename,
+                    ];
+            });
+
+        if ($migrationFiles->isNotEmpty()) {
+            $this->publishes($migrationFiles->toArray(), 'migrations');
+        }
     }
 }
