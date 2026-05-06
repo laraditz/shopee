@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: master
 
       - name: Extract changelog notes
         id: notes
@@ -27,7 +27,8 @@ jobs:
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_NOTES: ${{ steps.notes.outputs.notes }}
         run: |
           gh release create "${GITHUB_REF_NAME}" \
             --title "v${GITHUB_REF_NAME}" \
-            --notes "${{ steps.notes.outputs.notes }}"
+            --notes-file <(echo "$RELEASE_NOTES")
