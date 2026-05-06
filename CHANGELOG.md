@@ -2,6 +2,12 @@
 
 All notable changes to `laraditz/shopee` package will be documented in this file
 
+## 1.1.9 - 2026-05-06
+
+- Update `ShopStatus::fromName` by replacing invalid dynamic enum case access.
+
+### Changed
+
 ## 1.1.8 - 2026-05-06
 
 ### Changed

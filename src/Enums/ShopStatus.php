@@ -12,11 +12,12 @@ enum ShopStatus: int
 
     public static function fromName(string $name)
     {
-        try {
-            return self::{$name};
-        } catch (\Throwable $th) {
-            throw new Exception("$name is not a valid backing value for enum " . self::class);
+        foreach (self::cases() as $case) {
+            if ($case->name === $name) {
+                return $case;
+            }
         }
+        throw new Exception("$name is not a valid backing value for enum " . self::class);
     }
 
     public static function tryFromName(string $name)
