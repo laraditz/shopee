@@ -2,6 +2,13 @@
 
 All notable changes to `laraditz/shopee` package will be documented in this file
 
+## 1.1.8 - 2026-05-06
+
+### Changed
+
+- Move `$latestResponse` to TestCase class.
+- Change from `loadMigrations` to `publishMigrations`.
+
 ## 1.1.7 - 2026-03-21
 
 ### Added
