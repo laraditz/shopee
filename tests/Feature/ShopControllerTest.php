@@ -2,13 +2,11 @@
 
 namespace Laraditz\Shopee\Tests\Feature;
 
-use Laraditz\Shopee\Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Laraditz\Shopee\Tests\TestCase;
 
 class ShopControllerTest extends TestCase
 {
-    use RefreshDatabase;
 
     private function fakeSuccessfulShopeeApi(): void
     {

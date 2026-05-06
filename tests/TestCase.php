@@ -2,18 +2,17 @@
 
 namespace Laraditz\Shopee\Tests;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laraditz\Shopee\ShopeeServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
+    use RefreshDatabase;
     public static $latestResponse;
 
-    public function setUp(): void
+    protected function defineDatabaseMigrations(): void
     {
-        parent::setUp();
-
-        // Run package migrations
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 
