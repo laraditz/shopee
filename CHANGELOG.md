@@ -2,7 +2,7 @@
 
 All notable changes to `laraditz/shopee` package will be documented in this file
 
-## Unreleased
+## 1.2.0 - 2026-09-29
 
 ### Added
 
