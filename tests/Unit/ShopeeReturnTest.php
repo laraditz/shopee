@@ -79,4 +79,51 @@ class ShopeeReturnTest extends TestCase
         $this->assertEqualsCanonicalizing(['R1', 'R2'], $shop->returns->pluck('id')->all());
         $this->assertEqualsCanonicalizing(['R1', 'R2'], $order->returns->pluck('id')->all());
     }
+
+    private function payload(array $overrides = []): array
+    {
+        return array_replace([
+            'return_sn' => 2209010001,
+            'order_sn' => 'ORDER1',
+            'status' => 'REQUESTED',
+            'refund_amount' => 25.9,
+            'currency' => 'MYR',
+            'create_time' => 1700000000,
+            'update_time' => 1700003600,
+            'negotiation' => ['negotiation_status' => 'PENDING_RESPOND'],
+            'seller_proof' => ['seller_proof_status' => 'PENDING'],
+            'seller_compensation' => ['seller_compensation_status' => 'NOT_REQUIRED'],
+            'user' => ['username' => 'buyer', 'email' => 'buyer@example.com'],
+        ], $overrides);
+    }
+
+    /** @test */
+    public function sync_from_payload_maps_all_fields()
+    {
+        $return = ShopeeReturn::syncFromPayload($this->payload(), 1);
+
+        $this->assertInstanceOf(ShopeeReturn::class, $return);
+
+        $fresh = ShopeeReturn::find('2209010001');
+        $this->assertSame(1, $fresh->shop_id);
+        $this->assertSame('ORDER1', $fresh->order_sn);
+        $this->assertSame('REQUESTED', $fresh->status);
+        $this->assertSame('PENDING_RESPOND', $fresh->negotiation_status);
+        $this->assertSame('PENDING', $fresh->seller_proof_status);
+        $this->assertSame('NOT_REQUIRED', $fresh->seller_compensation_status);
+        $this->assertSame('25.90', $fresh->refund_amount);
+        $this->assertSame('MYR', $fresh->currency);
+        $this->assertSame(1700000000, $fresh->return_created_at->getTimestamp());
+        $this->assertSame(1700003600, $fresh->return_updated_at->getTimestamp());
+    }
+
+    /** @test */
+    public function sync_from_payload_updates_existing_row()
+    {
+        ShopeeReturn::syncFromPayload($this->payload(), 1);
+        ShopeeReturn::syncFromPayload($this->payload(['status' => 'ACCEPTED']), 1);
+
+        $this->assertDatabaseCount('shopee_returns', 1);
+        $this->assertSame('ACCEPTED', ShopeeReturn::find('2209010001')->status);
+    }
 }
