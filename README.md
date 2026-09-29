@@ -140,6 +140,25 @@ Manages payment and financial transaction details.
 | ------------------- | ----------------------------------------------------------- | ---------- |
 | `getEscrowDetail()` | Retrieve detailed escrow and payment information for orders | `order_sn` |
 
+### ↩️ Returns Service `returns()`
+
+Retrieves buyer return and refund requests. Each call also syncs a lightweight record (status, negotiation/proof/compensation status, refund amount, currency and Shopee timestamps) into the `shopee_returns` table via the `ShopeeReturn` model. Buyer personal data is not stored.
+
+| Method              | Description                                          | Parameters                                                                                                                      |
+| ------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `getReturnList()`   | Retrieve paginated list of returns with filters      | `page_no`, `page_size`, `create_time_from`, `create_time_to`, `update_time_from`, `update_time_to`, `status` and more - refer to [Shopee API Reference](https://open.shopee.com/documents/v2/v2.returns.get_return_list?module=102&type=1) |
+| `getReturnDetail()` | Get detailed information of a return                 | `return_sn` - refer to [Shopee API Reference](https://open.shopee.com/documents/v2/v2.returns.get_return_detail?module=102&type=1) |
+
+```php
+$returns = Shopee::returns()->getReturnList(page_no: 0, page_size: 50, update_time_from: now()->subDays(7)->timestamp, update_time_to: now()->timestamp);
+
+$return = Shopee::returns()->getReturnDetail(return_sn: '2209010001');
+
+// Synced records
+$order->returns;   // ShopeeOrder hasMany ShopeeReturn
+$shop->returns;    // ShopeeShop hasMany ShopeeReturn
+```
+
 ## Usage Examples
 
 The package provides a fluent, chainable API interface. Access services by chaining the service name before calling the method.

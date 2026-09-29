@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class Shopee
 {
-    private $services = ['auth', 'order', 'helper', 'shop', 'payment', 'product'];
+    private $services = ['auth', 'order', 'helper', 'shop', 'payment', 'product', 'returns'];
 
     private ?ShopeeShop $shop = null;
 
