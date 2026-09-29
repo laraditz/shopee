@@ -126,4 +126,68 @@ class ShopeeReturnTest extends TestCase
         $this->assertDatabaseCount('shopee_returns', 1);
         $this->assertSame('ACCEPTED', ShopeeReturn::find('2209010001')->status);
     }
+
+    /** @test */
+    public function sync_from_payload_returns_null_without_return_sn()
+    {
+        $this->assertNull(ShopeeReturn::syncFromPayload(['order_sn' => 'ORDER1'], 1));
+        $this->assertNull(ShopeeReturn::syncFromPayload(['return_sn' => ''], 1));
+        $this->assertDatabaseCount('shopee_returns', 0);
+    }
+
+    /** @test */
+    public function sync_from_payload_does_not_overwrite_with_missing_or_null_fields()
+    {
+        ShopeeReturn::syncFromPayload($this->payload(), 1);
+
+        ShopeeReturn::syncFromPayload([
+            'return_sn' => 2209010001,
+            'status' => 'ACCEPTED',
+            'refund_amount' => null,
+        ], 1);
+
+        $fresh = ShopeeReturn::find('2209010001');
+        $this->assertSame('ACCEPTED', $fresh->status);
+        $this->assertSame('ORDER1', $fresh->order_sn);
+        $this->assertSame('25.90', $fresh->refund_amount);
+        $this->assertSame('PENDING_RESPOND', $fresh->negotiation_status);
+        $this->assertSame(1700003600, $fresh->return_updated_at->getTimestamp());
+    }
+
+    /** @test */
+    public function sync_from_payload_falls_back_to_flat_status_keys()
+    {
+        ShopeeReturn::syncFromPayload($this->payload([
+            'negotiation' => [],
+            'seller_proof' => null,
+            'seller_compensation' => null,
+            'negotiation_status' => 'TERMINATED',
+            'seller_proof_status' => 'UPLOADED',
+            'seller_compensation_status' => 'PENDING_REQUEST',
+        ]), 1);
+
+        $fresh = ShopeeReturn::find('2209010001');
+        $this->assertSame('TERMINATED', $fresh->negotiation_status);
+        $this->assertSame('UPLOADED', $fresh->seller_proof_status);
+        $this->assertSame('PENDING_REQUEST', $fresh->seller_compensation_status);
+    }
+
+    /** @test */
+    public function sync_from_payload_skips_zero_or_invalid_timestamps()
+    {
+        ShopeeReturn::syncFromPayload($this->payload(['create_time' => 0, 'update_time' => 'abc']), 1);
+
+        $fresh = ShopeeReturn::find('2209010001');
+        $this->assertNull($fresh->return_created_at);
+        $this->assertNull($fresh->return_updated_at);
+    }
+
+    /** @test */
+    public function sync_from_payload_keeps_shop_id_when_null_given()
+    {
+        ShopeeReturn::syncFromPayload($this->payload(), 1);
+        ShopeeReturn::syncFromPayload($this->payload(['status' => 'ACCEPTED']), null);
+
+        $this->assertSame(1, ShopeeReturn::find('2209010001')->shop_id);
+    }
 }
