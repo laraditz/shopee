@@ -36,6 +36,10 @@ return [
         'payment' => [
             'get_escrow_detail' => '/api/v2/payment/get_escrow_detail',
         ],
+        'returns' => [
+            'get_return_list' => '/api/v2/returns/get_return_list',
+            'get_return_detail' => '/api/v2/returns/get_return_detail',
+        ],
         'product' => [
             'get_list' => '/api/v2/product/get_item_list',
             'get_base_info' => '/api/v2/product/get_item_base_info',

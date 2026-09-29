@@ -2,6 +2,14 @@
 
 All notable changes to `laraditz/shopee` package will be documented in this file
 
+## 1.2.0 - 2026-09-29
+
+### Added
+
+- Add `returns()` service with `getReturnList()` and `getReturnDetail()` - wraps `GET /api/v2/returns/get_return_list` and `GET /api/v2/returns/get_return_detail`
+- Add `shopee_returns` table and `ShopeeReturn` model, synced automatically from return list/detail responses
+- Add `returns()` relationship to `ShopeeShop` and `ShopeeOrder`
+
 ## 1.1.10 - 2026-05-06
 
 ### Changed

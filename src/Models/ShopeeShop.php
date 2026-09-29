@@ -4,6 +4,7 @@ namespace Laraditz\Shopee\Models;
 
 use Laraditz\Shopee\Enums\ShopStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ShopeeShop extends Model
@@ -22,5 +23,10 @@ class ShopeeShop extends Model
     public function accessToken()
     {
         return $this->morphOne(ShopeeAccessToken::class, 'entity');
+    }
+
+    public function returns(): HasMany
+    {
+        return $this->hasMany(ShopeeReturn::class, 'shop_id');
     }
 }

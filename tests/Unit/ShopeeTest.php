@@ -50,6 +50,7 @@ class ShopeeTest extends TestCase
         $this->assertInstanceOf(\Laraditz\Shopee\Services\ProductService::class, $shopee->product());
         $this->assertInstanceOf(\Laraditz\Shopee\Services\OrderService::class, $shopee->order());
         $this->assertInstanceOf(\Laraditz\Shopee\Services\PaymentService::class, $shopee->payment());
+        $this->assertInstanceOf(\Laraditz\Shopee\Services\ReturnsService::class, $shopee->returns());
     }
 
     /** @test */
