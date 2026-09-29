@@ -3,6 +3,7 @@
 namespace Laraditz\Shopee\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ShopeeReturn extends Model
 {
@@ -35,5 +36,15 @@ class ShopeeReturn extends Model
     public function getKeyType(): string
     {
         return 'string';
+    }
+
+    public function shop(): BelongsTo
+    {
+        return $this->belongsTo(ShopeeShop::class);
+    }
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(ShopeeOrder::class, 'order_sn');
     }
 }

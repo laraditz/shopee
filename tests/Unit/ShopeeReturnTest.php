@@ -3,7 +3,9 @@
 namespace Laraditz\Shopee\Tests\Unit;
 
 use Illuminate\Support\Facades\Schema;
+use Laraditz\Shopee\Models\ShopeeOrder;
 use Laraditz\Shopee\Models\ShopeeReturn;
+use Laraditz\Shopee\Models\ShopeeShop;
 use Laraditz\Shopee\Tests\TestCase;
 
 class ShopeeReturnTest extends TestCase
@@ -44,5 +46,37 @@ class ShopeeReturnTest extends TestCase
         $this->assertSame('2209010001', $return->id);
         $this->assertSame('12.50', $return->refund_amount);
         $this->assertSame(1, $return->shop_id);
+    }
+
+    /** @test */
+    public function shopee_return_belongs_to_shop_and_order()
+    {
+        ShopeeShop::create(['id' => 1, 'name' => 'Shop A']);
+        ShopeeOrder::create(['id' => 'ORDER1', 'shop_id' => 1]);
+        $return = ShopeeReturn::create(['id' => 'R1', 'shop_id' => 1, 'order_sn' => 'ORDER1']);
+
+        $this->assertSame(1, $return->shop->id);
+        $this->assertSame('ORDER1', $return->order->id);
+    }
+
+    /** @test */
+    public function shopee_return_order_is_null_when_order_not_synced()
+    {
+        $return = ShopeeReturn::create(['id' => 'R1', 'shop_id' => 1, 'order_sn' => 'UNKNOWN']);
+
+        $this->assertNull($return->order);
+    }
+
+    /** @test */
+    public function shop_and_order_have_many_returns()
+    {
+        $shop = ShopeeShop::create(['id' => 1, 'name' => 'Shop A']);
+        $order = ShopeeOrder::create(['id' => 'ORDER1', 'shop_id' => 1]);
+        ShopeeReturn::create(['id' => 'R1', 'shop_id' => 1, 'order_sn' => 'ORDER1']);
+        ShopeeReturn::create(['id' => 'R2', 'shop_id' => 1, 'order_sn' => 'ORDER1']);
+        ShopeeReturn::create(['id' => 'R3', 'shop_id' => 2, 'order_sn' => 'ORDER2']);
+
+        $this->assertEqualsCanonicalizing(['R1', 'R2'], $shop->returns->pluck('id')->all());
+        $this->assertEqualsCanonicalizing(['R1', 'R2'], $order->returns->pluck('id')->all());
     }
 }
