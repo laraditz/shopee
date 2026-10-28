@@ -4,10 +4,11 @@ namespace Laraditz\Shopee\Tests\Unit;
 
 use Laraditz\Shopee\Shopee;
 use Laraditz\Shopee\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ShopeeTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_can_instantiate_shopee_class()
     {
         $shopee = new Shopee();
@@ -15,7 +16,7 @@ class ShopeeTest extends TestCase
         $this->assertInstanceOf(Shopee::class, $shopee);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_create_shopee_instance_with_make_method()
     {
         $shopee = Shopee::make();
@@ -23,7 +24,7 @@ class ShopeeTest extends TestCase
         $this->assertInstanceOf(Shopee::class, $shopee);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_set_partner_credentials()
     {
         $shopee = new Shopee(
@@ -37,7 +38,7 @@ class ShopeeTest extends TestCase
         $this->assertEquals(123456789, $shopee->getShopId());
     }
 
-    /** @test */
+    #[Test]
     public function it_can_access_services()
     {
         $shopee = new Shopee(
@@ -53,7 +54,7 @@ class ShopeeTest extends TestCase
         $this->assertInstanceOf(\Laraditz\Shopee\Services\ReturnsService::class, $shopee->returns());
     }
 
-    /** @test */
+    #[Test]
     public function it_generates_correct_signature()
     {
         $shopee = new Shopee(

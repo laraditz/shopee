@@ -5,6 +5,7 @@ namespace Laraditz\Shopee\Tests\Unit;
 use Laraditz\Shopee\Shopee;
 use Laraditz\Shopee\Tests\TestCase;
 use Laraditz\Shopee\Services\ShopService;
+use PHPUnit\Framework\Attributes\Test;
 
 class ShopServiceTest extends TestCase
 {
@@ -19,7 +20,7 @@ class ShopServiceTest extends TestCase
         ));
     }
 
-    /** @test */
+    #[Test]
     public function it_generates_authorization_url_without_redirect_url_when_config_is_null()
     {
         $this->app['config']->set('shopee.redirect_url', null);
@@ -32,7 +33,7 @@ class ShopServiceTest extends TestCase
         $this->assertStringContainsString('/api/v2/shop/auth_partner', $url);
     }
 
-    /** @test */
+    #[Test]
     public function it_embeds_redirect_url_inside_redirect_callback_param_when_config_is_set()
     {
         $this->app['config']->set('shopee.redirect_url', 'https://myapp.com/auth/callback');
