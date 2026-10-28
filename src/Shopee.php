@@ -117,12 +117,13 @@ class Shopee
     public function verifyPushSignature(string $url, string $rawBody, string $authorization): bool
     {
         $authorization = strtolower(trim($authorization));
+        $partnerKey = (string) $this->getPartnerKey();
 
-        if ($authorization === '') {
+        if ($authorization === '' || $partnerKey === '') {
             return false;
         }
 
-        $expected = hash_hmac('sha256', $url . '|' . $rawBody, (string) $this->getPartnerKey());
+        $expected = hash_hmac('sha256', $url . '|' . $rawBody, $partnerKey);
 
         return hash_equals($expected, $authorization);
     }

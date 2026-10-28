@@ -96,4 +96,29 @@ class OrtiroHooksTest extends TestCase
             fn (ShopAuthorized $e) => $e->shop->is($shop) && $e->accessToken->is($token)
         );
     }
+
+    #[Test]
+    public function test_push_signature_rejects_empty_partner_key()
+    {
+        $url = 'https://ortiro.test/webhooks/shopee';
+        $body = '{"a":1}';
+        $sig = hash_hmac('sha256', $url . '|' . $body, '');
+        $this->app['config']->set('shopee.partner_key', '');
+
+        $shopee = new Shopee(partner_id: 'test_partner_id', partner_key: '');
+        $this->assertFalse($shopee->verifyPushSignature($url, $body, $sig));
+    }
+
+    #[Test]
+    public function test_authorization_url_without_argument_embeds_configured_redirect_url()
+    {
+        $this->app['config']->set('shopee.redirect_url', 'https://myapp.com/auth/callback');
+
+        $url = $this->shopee()->shop()->generateAuthorizationURL();
+
+        $this->assertSame(
+            route('shopee.shops.authorized') . '?' . http_build_query(['redirect_url' => 'https://myapp.com/auth/callback']),
+            $this->redirectParam($url)
+        );
+    }
 }

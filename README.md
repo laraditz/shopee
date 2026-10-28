@@ -363,6 +363,8 @@ php artisan shopee:encrypt-tokens
 
 It prints `Encrypted N value(s).` and is safe to run again (the second run reports 0). With the flag off it prints `Enable shopee.encrypt_tokens first.` and exits with code 1. Always write tokens through the Eloquent model; query-builder updates skip the cast.
 
+- If you rotate `APP_KEY`, keep the old key in `APP_PREVIOUS_KEYS` so existing encrypted values still decrypt, and do not run `shopee:encrypt-tokens` until then: it treats any value it cannot decrypt with the current key as plaintext and would encrypt it a second time.
+
 ### Request log controls
 
 ```php

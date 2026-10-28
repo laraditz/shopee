@@ -129,4 +129,15 @@ class RequestLoggingTest extends TestCase
         $this->assertSame(1, (new ShopeeRequest)->pruneAll());
         $this->assertSame(1, ShopeeRequest::count());
     }
+
+    #[Test]
+    public function test_redact_array_returns_non_array_input_unchanged()
+    {
+        $service = (new Shopee(partner_id: 'test_partner_id', partner_key: 'test_partner_key'))->payment();
+        $method = new \ReflectionMethod($service, 'redactArray');
+
+        foreach (['ok', 5, true, null] as $value) {
+            $this->assertSame($value, $method->invoke($service, $value, ['access_token']));
+        }
+    }
 }
