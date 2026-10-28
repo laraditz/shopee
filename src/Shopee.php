@@ -139,7 +139,7 @@ class Shopee
         return $this->shop_id;
     }
 
-    public function setShopId(string|int $shopId): void
+    public function setShopId(string|int|null $shopId): void
     {
         $this->shop_id = $shopId;
     }
