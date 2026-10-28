@@ -58,4 +58,5 @@ return [
         ]
     ],
     'middleware' => ['api'],
+    'encrypt_tokens' => env('SHOPEE_ENCRYPT_TOKENS', false),
 ];

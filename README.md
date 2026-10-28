@@ -346,6 +346,23 @@ Returns `true` when `$authorization` (the `Authorization` header) equals `hash_h
 
 `Laraditz\Shopee\Events\ShopAuthorized` is dispatched by `auth()->accessToken()` right after a shop's token is saved. It exposes public readonly `ShopeeShop $shop` and `ShopeeAccessToken $accessToken`.
 
+### Token encryption
+
+```php
+// config/shopee.php
+'encrypt_tokens' => env('SHOPEE_ENCRYPT_TOKENS', false),
+```
+
+Default `false`: tokens are stored as plaintext, exactly as before. When `true`, `access_token` and `refresh_token` are encrypted with Laravel's `Crypt` (so `APP_KEY` must stay stable) when written through the `ShopeeAccessToken` model. Reads work for plaintext rows, encrypted rows, and after the flag is switched off again. A published config file without this key behaves as `false`.
+
+To encrypt rows that already exist, enable the flag and run:
+
+```bash
+php artisan shopee:encrypt-tokens
+```
+
+It prints `Encrypted N value(s).` and is safe to run again (the second run reports 0). With the flag off it prints `Enable shopee.encrypt_tokens first.` and exits with code 1. Always write tokens through the Eloquent model; query-builder updates skip the cast.
+
 ## Artisan Commands
 
 The package provides convenient Artisan commands for token management:
