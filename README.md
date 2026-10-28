@@ -322,6 +322,30 @@ protected $listen = [
 ];
 ```
 
+## Multi-tenant / hardening options (opt-in)
+
+None of these change default behaviour. Existing code keeps working unchanged.
+
+### Authorization URL with a custom redirect
+
+```php
+Shopee::make()->shop()->generateAuthorizationURL(?string $redirect = null): string
+```
+
+With no argument the URL is built exactly as before (the `shopee.shops.authorized` route, plus `SHOPEE_REDIRECT_URL` when set). When `$redirect` is given it is sent as the `redirect` parameter exactly as passed (query string included), and the route and `redirect_url` logic is skipped.
+
+### Verifying Shopee push signatures
+
+```php
+Shopee::make()->verifyPushSignature(string $url, string $rawBody, string $authorization): bool
+```
+
+Returns `true` when `$authorization` (the `Authorization` header) equals `hash_hmac('sha256', $url . '|' . $rawBody, partner_key)`, compared in constant time. `$url` is the full push URL registered with Shopee and `$rawBody` the unparsed request body. An empty header returns `false`.
+
+### ShopAuthorized event
+
+`Laraditz\Shopee\Events\ShopAuthorized` is dispatched by `auth()->accessToken()` right after a shop's token is saved. It exposes public readonly `ShopeeShop $shop` and `ShopeeAccessToken $accessToken`.
+
 ## Artisan Commands
 
 The package provides convenient Artisan commands for token management:

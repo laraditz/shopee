@@ -5,6 +5,7 @@ namespace Laraditz\Shopee\Services;
 use Laraditz\Shopee\Models\ShopeeShop;
 use Laraditz\Shopee\Models\ShopeeAccessToken;
 use Laraditz\Shopee\Enums\EntityType;
+use Laraditz\Shopee\Events\ShopAuthorized;
 
 class AuthService extends BaseService
 {
@@ -42,7 +43,11 @@ class AuthService extends BaseService
                 'expires_at' => now()->addSeconds(data_get($response, 'expire_in')),
             ]);
 
-            return $entity->accessToken;
+            $accessToken = $entity->accessToken;
+
+            ShopAuthorized::dispatch($entity, $accessToken);
+
+            return $accessToken;
         }
 
         return null;

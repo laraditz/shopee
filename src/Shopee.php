@@ -114,6 +114,19 @@ class Shopee
         ];
     }
 
+    public function verifyPushSignature(string $url, string $rawBody, string $authorization): bool
+    {
+        $authorization = strtolower(trim($authorization));
+
+        if ($authorization === '') {
+            return false;
+        }
+
+        $expected = hash_hmac('sha256', $url . '|' . $rawBody, (string) $this->getPartnerKey());
+
+        return hash_equals($expected, $authorization);
+    }
+
     public function getPartnerId()
     {
         return $this->partner_id;
