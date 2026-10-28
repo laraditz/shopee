@@ -59,4 +59,9 @@ return [
     ],
     'middleware' => ['api'],
     'encrypt_tokens' => env('SHOPEE_ENCRYPT_TOKENS', false),
+    'logging' => [
+        'requests' => env('SHOPEE_LOG_REQUESTS', true),
+        'redact_secrets' => env('SHOPEE_LOG_REDACT_SECRETS', false),
+        'prune_after_days' => env('SHOPEE_LOG_PRUNE_AFTER_DAYS'),
+    ],
 ];
