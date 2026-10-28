@@ -363,6 +363,34 @@ php artisan shopee:encrypt-tokens
 
 It prints `Encrypted N value(s).` and is safe to run again (the second run reports 0). With the flag off it prints `Enable shopee.encrypt_tokens first.` and exits with code 1. Always write tokens through the Eloquent model; query-builder updates skip the cast.
 
+### Request log controls
+
+```php
+// config/shopee.php
+'logging' => [
+    'requests' => env('SHOPEE_LOG_REQUESTS', true),
+    'redact_secrets' => env('SHOPEE_LOG_REDACT_SECRETS', false),
+    'prune_after_days' => env('SHOPEE_LOG_PRUNE_AFTER_DAYS'),
+],
+```
+
+Defaults keep today's behaviour: every API call is saved to `shopee_requests` unredacted. A published config file without the `logging` block behaves the same way.
+
+- `requests` = `false`: no `shopee_requests` row is written. After-response hooks still run and receive an unsaved `ShopeeRequest` model with `shop_id`, `url` and `request` filled, so token exchanges and product syncs keep working.
+- `redact_secrets` = `true`: before saving, `access_token`, `refresh_token`, `code` and `sign` are replaced with `[REDACTED]` in the `request` payload and in the URL query string, and `access_token` and `refresh_token` in the `response`, at any depth. Only the stored log changes; the value returned by the API method and passed to hooks is unredacted.
+- `prune_after_days`: a positive integer makes `ShopeeRequest` and `ShopeeWebhook` rows older than that many days prunable (`MassPrunable`). Unset, `0` or non-numeric prunes nothing.
+
+Laravel's `model:prune` only auto-discovers models in `app/Models`, so package models are not pruned unless you schedule them yourself with `--model=`:
+
+```php
+Schedule::command('model:prune', [
+    '--model' => [
+        \Laraditz\Shopee\Models\ShopeeRequest::class,
+        \Laraditz\Shopee\Models\ShopeeWebhook::class,
+    ],
+])->daily();
+```
+
 ## Artisan Commands
 
 The package provides convenient Artisan commands for token management:
@@ -415,31 +443,3 @@ If you discover any security related issues, please email raditzfarhan@gmail.com
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-### Request log controls
-
-```php
-// config/shopee.php
-'logging' => [
-    'requests' => env('SHOPEE_LOG_REQUESTS', true),
-    'redact_secrets' => env('SHOPEE_LOG_REDACT_SECRETS', false),
-    'prune_after_days' => env('SHOPEE_LOG_PRUNE_AFTER_DAYS'),
-],
-```
-
-Defaults keep today's behaviour: every API call is saved to `shopee_requests` unredacted. A published config file without the `logging` block behaves the same way.
-
-- `requests` = `false`: no `shopee_requests` row is written. After-response hooks still run and receive an unsaved `ShopeeRequest` model with `shop_id`, `url` and `request` filled, so token exchanges and product syncs keep working.
-- `redact_secrets` = `true`: before saving, `access_token`, `refresh_token`, `code` and `sign` are replaced with `[REDACTED]` in the `request` payload and in the URL query string, and `access_token` and `refresh_token` in the `response`, at any depth. Only the stored log changes; the value returned by the API method and passed to hooks is unredacted.
-- `prune_after_days`: a positive integer makes `ShopeeRequest` and `ShopeeWebhook` rows older than that many days prunable (`MassPrunable`). Unset, `0` or non-numeric prunes nothing.
-
-Laravel's `model:prune` only auto-discovers models in `app/Models`, so package models are not pruned unless you schedule them yourself with `--model=`:
-
-```php
-Schedule::command('model:prune', [
-    '--model' => [
-        \Laraditz\Shopee\Models\ShopeeRequest::class,
-        \Laraditz\Shopee\Models\ShopeeWebhook::class,
-    ],
-])->daily();
-```
