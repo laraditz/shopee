@@ -2,6 +2,22 @@
 
 All notable changes to `laraditz/shopee` package will be documented in this file
 
+## 1.3.0 - 2026-10-29
+
+### Added
+
+- Support Laravel 13.
+- `ShopService::generateAuthorizationURL(?string $redirect = null)` accepts an optional redirect URL. Query parameters such as `state` are kept.
+- `Shopee::verifyPushSignature(string $url, string $rawBody, string $authorization): bool` to verify push (webhook) signatures.
+- `ShopAuthorized` event, fired after a shop's access token is obtained.
+- Opt-in token encryption: `SHOPEE_ENCRYPT_TOKENS` (default `false`) and the `shopee:encrypt-tokens` command to encrypt existing rows. Plaintext values are still read.
+- Opt-in request log controls: `SHOPEE_LOG_REQUESTS` (default `true`), `SHOPEE_LOG_REDACT_SECRETS` (default `false`) and `SHOPEE_LOG_PRUNE_AFTER_DAYS` for pruning `ShopeeRequest` and `ShopeeWebhook` with `model:prune`.
+
+### Fixed
+
+- `OrderService`, `ProductService` and `PaymentService` now use their own Shopee instance, so `Shopee::make(shop_id: ...)` calls no longer use the default shop.
+- `setShopId()` accepts `null`, so the package resolves when `SHOPEE_SHOP_ID` is not set.
+
 ## 1.2.0 - 2026-09-29
 
 ### Added
