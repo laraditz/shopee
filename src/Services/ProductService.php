@@ -15,11 +15,11 @@ class ProductService extends BaseService
     {
         $shop = ShopeeShop::findOrFail($shop_id);
 
-        $partner_id = app('shopee')->getPartnerId();
+        $partner_id = $this->shopee->getPartnerId();
         $route = 'product.get_list';
-        $path = app('shopee')->getPath($route);
+        $path = $this->shopee->getPath($route);
         $access_token = data_get($shop, 'accessToken.access_token');
-        $signature = app('shopee')->helper()->generateSignature($path, [$access_token, $shop_id]);
+        $signature = $this->shopee->generateSignature($path, [$access_token, $shop_id]);
 
         $query_string = [
             'partner_id' => $partner_id,
@@ -58,7 +58,7 @@ class ProductService extends BaseService
 
             if ($item_ids && count($item_ids) > 0) {
                 // call this api to update product details
-                $items = app('shopee')
+                $items = $this->shopee
                     ->shopId($shop_id)
                     ->product()
                     ->getItemBaseInfo(item_id_list: implode(',', $item_ids));
@@ -75,11 +75,11 @@ class ProductService extends BaseService
     {
         $shop = ShopeeShop::findOrFail($shop_id);
 
-        $partner_id = app('shopee')->getPartnerId();
+        $partner_id = $this->shopee->getPartnerId();
         $route = 'product.get_base_info';
-        $path = app('shopee')->getPath($route);
+        $path = $this->shopee->getPath($route);
         $access_token = data_get($shop, 'accessToken.access_token');
-        $signature = app('shopee')->helper()->generateSignature($path, [$access_token, $shop_id]);
+        $signature = $this->shopee->generateSignature($path, [$access_token, $shop_id]);
 
         $query_string = [
             'partner_id' => $partner_id,
@@ -112,11 +112,11 @@ class ProductService extends BaseService
     {
         $shop = ShopeeShop::findOrFail($shop_id);
 
-        $partner_id = app('shopee')->getPartnerId();
+        $partner_id = $this->shopee->getPartnerId();
         $route = 'product.get_extra_info';
-        $path = app('shopee')->getPath($route);
+        $path = $this->shopee->getPath($route);
         $access_token = data_get($shop, 'accessToken.access_token');
-        $signature = app('shopee')->helper()->generateSignature($path, [$access_token, $shop_id]);
+        $signature = $this->shopee->generateSignature($path, [$access_token, $shop_id]);
 
         $query_string = [
             'partner_id' => $partner_id,
@@ -145,11 +145,11 @@ class ProductService extends BaseService
     {
         $shop = ShopeeShop::findOrFail($shop_id);
 
-        $partner_id = app('shopee')->getPartnerId();
+        $partner_id = $this->shopee->getPartnerId();
         $route = 'product.search';
-        $path = app('shopee')->getPath($route);
+        $path = $this->shopee->getPath($route);
         $access_token = data_get($shop, 'accessToken.access_token');
-        $signature = app('shopee')->helper()->generateSignature($path, [$access_token, $shop_id]);
+        $signature = $this->shopee->generateSignature($path, [$access_token, $shop_id]);
 
         $query_string = [
             'partner_id' => $partner_id,
@@ -175,11 +175,11 @@ class ProductService extends BaseService
     // {
     //     $shop = ShopeeShop::findOrFail($shop_id);
 
-    //     $partner_id = app('shopee')->getPartnerId();
+    //     $partner_id = $this->shopee->getPartnerId();
     //     $route = 'product.update_stock';
-    //     $path = app('shopee')->getPath($route);
+    //     $path = $this->shopee->getPath($route);
     //     $access_token = data_get($shop, 'accessToken.access_token');
-    //     $signature = app('shopee')->helper()->generateSignature($path, [$access_token, $shop_id]);
+    //     $signature = $this->shopee->generateSignature($path, [$access_token, $shop_id]);
 
     //     $query_string = [
     //         'partner_id' => $partner_id,
@@ -207,11 +207,11 @@ class ProductService extends BaseService
     {
         $shop = ShopeeShop::findOrFail($shop_id);
 
-        $partner_id = app('shopee')->getPartnerId();
+        $partner_id = $this->shopee->getPartnerId();
         $route = 'product.get_model_list';
-        $path = app('shopee')->getPath($route);
+        $path = $this->shopee->getPath($route);
         $access_token = data_get($shop, 'accessToken.access_token');
-        $signature = app('shopee')->helper()->generateSignature($path, [$access_token, $shop_id]);
+        $signature = $this->shopee->generateSignature($path, [$access_token, $shop_id]);
 
         $query_string = [
             'partner_id' => $partner_id,
@@ -269,7 +269,7 @@ class ProductService extends BaseService
             );
 
             // Fetch full item details to populate name, sku, category_id, has_model
-            app('shopee')
+            $this->shopee
                 ->shopId($request->shop_id)
                 ->product()
                 ->getItemBaseInfo(item_id_list: (string) $item_id);
@@ -347,7 +347,7 @@ class ProductService extends BaseService
             }
 
             if ($item_ids && count($item_ids) > 0) {
-                $items = app('shopee')
+                $items = $this->shopee
                     ->shopId($request->shop_id)
                     ->product()
                     ->getItemBaseInfo(item_id_list: implode(',', $item_ids));

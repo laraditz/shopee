@@ -4,6 +4,7 @@ namespace Laraditz\Shopee\Tests\Feature;
 
 use Illuminate\Support\Facades\Http;
 use Laraditz\Shopee\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ShopControllerTest extends TestCase
 {
@@ -39,7 +40,7 @@ class ShopControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_renders_built_in_view_when_no_redirect_url_configured()
     {
         $this->app['config']->set('shopee.redirect_url', null);
@@ -53,7 +54,7 @@ class ShopControllerTest extends TestCase
         $response->assertViewIs('shopee::shops.authorized');
     }
 
-    /** @test */
+    #[Test]
     public function it_redirects_to_configured_url_with_data_on_success()
     {
         $configuredUrl = 'https://myapp.com/auth/callback';
@@ -73,7 +74,7 @@ class ShopControllerTest extends TestCase
         $response->assertRedirectContains('expires_at=');
     }
 
-    /** @test */
+    #[Test]
     public function it_ignores_redirect_url_that_does_not_match_config()
     {
         $this->app['config']->set('shopee.redirect_url', 'https://myapp.com/auth/callback');
@@ -89,7 +90,7 @@ class ShopControllerTest extends TestCase
         $response->assertViewIs('shopee::shops.authorized');
     }
 
-    /** @test */
+    #[Test]
     public function it_redirects_with_error_param_when_token_fails()
     {
         $configuredUrl = 'https://myapp.com/auth/callback';
@@ -107,7 +108,7 @@ class ShopControllerTest extends TestCase
         $response->assertRedirectContains('shop_id=12345');
     }
 
-    /** @test */
+    #[Test]
     public function it_renders_view_on_token_failure_when_no_redirect_url_configured()
     {
         $this->app['config']->set('shopee.redirect_url', null);

@@ -322,6 +322,77 @@ protected $listen = [
 ];
 ```
 
+## Multi-tenant / hardening options (opt-in)
+
+None of these change default behaviour. Existing code keeps working unchanged.
+
+### Authorization URL with a custom redirect
+
+```php
+Shopee::make()->shop()->generateAuthorizationURL(?string $redirect = null): string
+```
+
+With no argument the URL is built exactly as before (the `shopee.shops.authorized` route, plus `SHOPEE_REDIRECT_URL` when set). When `$redirect` is given it is sent as the `redirect` parameter exactly as passed (query string included), and the route and `redirect_url` logic is skipped.
+
+### Verifying Shopee push signatures
+
+```php
+Shopee::make()->verifyPushSignature(string $url, string $rawBody, string $authorization): bool
+```
+
+Returns `true` when `$authorization` (the `Authorization` header) equals `hash_hmac('sha256', $url . '|' . $rawBody, partner_key)`, compared in constant time. `$url` is the full push URL registered with Shopee and `$rawBody` the unparsed request body. An empty header returns `false`.
+
+### ShopAuthorized event
+
+`Laraditz\Shopee\Events\ShopAuthorized` is dispatched by `auth()->accessToken()` right after a shop's token is saved. It exposes public readonly `ShopeeShop $shop` and `ShopeeAccessToken $accessToken`.
+
+### Token encryption
+
+```php
+// config/shopee.php
+'encrypt_tokens' => env('SHOPEE_ENCRYPT_TOKENS', false),
+```
+
+Default `false`: tokens are stored as plaintext, exactly as before. When `true`, `access_token` and `refresh_token` are encrypted with Laravel's `Crypt` (so `APP_KEY` must stay stable) when written through the `ShopeeAccessToken` model. Reads work for plaintext rows, encrypted rows, and after the flag is switched off again. A published config file without this key behaves as `false`.
+
+To encrypt rows that already exist, enable the flag and run:
+
+```bash
+php artisan shopee:encrypt-tokens
+```
+
+It prints `Encrypted N value(s).` and is safe to run again (the second run reports 0). With the flag off it prints `Enable shopee.encrypt_tokens first.` and exits with code 1. Always write tokens through the Eloquent model; query-builder updates skip the cast.
+
+- If you rotate `APP_KEY`, keep the old key in `APP_PREVIOUS_KEYS` so existing encrypted values still decrypt, and do not run `shopee:encrypt-tokens` until then: it treats any value it cannot decrypt with the current key as plaintext and would encrypt it a second time.
+
+### Request log controls
+
+```php
+// config/shopee.php
+'logging' => [
+    'requests' => env('SHOPEE_LOG_REQUESTS', true),
+    'redact_secrets' => env('SHOPEE_LOG_REDACT_SECRETS', false),
+    'prune_after_days' => env('SHOPEE_LOG_PRUNE_AFTER_DAYS'),
+],
+```
+
+Defaults keep today's behaviour: every API call is saved to `shopee_requests` unredacted. A published config file without the `logging` block behaves the same way.
+
+- `requests` = `false`: no `shopee_requests` row is written. After-response hooks still run and receive an unsaved `ShopeeRequest` model with `shop_id`, `url` and `request` filled, so token exchanges and product syncs keep working.
+- `redact_secrets` = `true`: before saving, `access_token`, `refresh_token`, `code` and `sign` are replaced with `[REDACTED]` in the `request` payload and in the URL query string, and `access_token` and `refresh_token` in the `response`, at any depth. Only the stored log changes; the value returned by the API method and passed to hooks is unredacted.
+- `prune_after_days`: a positive integer makes `ShopeeRequest` and `ShopeeWebhook` rows older than that many days prunable (`MassPrunable`). Unset, `0` or non-numeric prunes nothing.
+
+Laravel's `model:prune` only auto-discovers models in `app/Models`, so package models are not pruned unless you schedule them yourself with `--model=`:
+
+```php
+Schedule::command('model:prune', [
+    '--model' => [
+        \Laraditz\Shopee\Models\ShopeeRequest::class,
+        \Laraditz\Shopee\Models\ShopeeWebhook::class,
+    ],
+])->daily();
+```
+
 ## Artisan Commands
 
 The package provides convenient Artisan commands for token management:

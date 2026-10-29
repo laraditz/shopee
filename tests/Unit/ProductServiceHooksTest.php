@@ -9,22 +9,23 @@ use Laraditz\Shopee\Services\ProductService;
 use Laraditz\Shopee\Shopee;
 use Laraditz\Shopee\Tests\TestCase;
 use Illuminate\Support\Facades\Schema;
+use PHPUnit\Framework\Attributes\Test;
 
 class ProductServiceHooksTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function shopee_products_table_has_deleted_at_column()
     {
         $this->assertTrue(Schema::hasColumn('shopee_products', 'deleted_at'));
     }
 
-    /** @test */
+    #[Test]
     public function shopee_product_models_table_has_deleted_at_column()
     {
         $this->assertTrue(Schema::hasColumn('shopee_product_models', 'deleted_at'));
     }
 
-    /** @test */
+    #[Test]
     public function shopee_product_uses_soft_deletes()
     {
         $product = ShopeeProduct::create([
@@ -40,7 +41,7 @@ class ProductServiceHooksTest extends TestCase
         $this->assertNotNull(ShopeeProduct::withTrashed()->find('111'));
     }
 
-    /** @test */
+    #[Test]
     public function shopee_product_model_uses_soft_deletes()
     {
         $productModel = ShopeeProductModel::create([
@@ -56,7 +57,7 @@ class ProductServiceHooksTest extends TestCase
         $this->assertNotNull(ShopeeProductModel::withTrashed()->find('999'));
     }
 
-    /** @test */
+    #[Test]
     public function after_add_item_response_creates_product_stub()
     {
         $shopee = new Shopee(partner_id: 'pid', partner_key: 'pkey', shop_id: 1);
@@ -87,7 +88,7 @@ class ProductServiceHooksTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function after_add_item_response_does_nothing_when_item_id_missing()
     {
         $shopee = new Shopee(partner_id: 'pid', partner_key: 'pkey', shop_id: 1);
@@ -104,7 +105,7 @@ class ProductServiceHooksTest extends TestCase
         $this->assertDatabaseCount('shopee_products', 0);
     }
 
-    /** @test */
+    #[Test]
     public function after_update_item_response_updates_existing_product_name()
     {
         ShopeeProduct::create([
@@ -134,7 +135,7 @@ class ProductServiceHooksTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function after_update_item_response_does_not_overwrite_name_with_null()
     {
         ShopeeProduct::create([
@@ -164,7 +165,7 @@ class ProductServiceHooksTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function after_update_item_response_does_not_insert_when_product_not_found()
     {
         $shopee = new Shopee(partner_id: 'pid', partner_key: 'pkey', shop_id: 1);
@@ -184,7 +185,7 @@ class ProductServiceHooksTest extends TestCase
         $this->assertDatabaseCount('shopee_products', 0);
     }
 
-    /** @test */
+    #[Test]
     public function after_update_item_response_falls_back_to_request_item_id()
     {
         ShopeeProduct::create([
@@ -215,7 +216,7 @@ class ProductServiceHooksTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function after_delete_item_response_soft_deletes_product_and_models()
     {
         ShopeeProduct::create([
@@ -247,7 +248,7 @@ class ProductServiceHooksTest extends TestCase
         $this->assertCount(0, ShopeeProductModel::where('product_id', '88')->get());
     }
 
-    /** @test */
+    #[Test]
     public function after_delete_item_response_does_nothing_when_product_not_found()
     {
         $shopee = new Shopee(partner_id: 'pid', partner_key: 'pkey', shop_id: 1);
@@ -265,7 +266,7 @@ class ProductServiceHooksTest extends TestCase
         $this->assertDatabaseCount('shopee_products', 0);
     }
 
-    /** @test */
+    #[Test]
     public function after_delete_item_response_does_nothing_when_item_id_missing_from_request()
     {
         $shopee = new Shopee(partner_id: 'pid', partner_key: 'pkey', shop_id: 1);
@@ -283,7 +284,7 @@ class ProductServiceHooksTest extends TestCase
         $this->assertDatabaseCount('shopee_products', 0);
     }
 
-    /** @test */
+    #[Test]
     public function after_delete_item_response_is_scoped_to_shop_id()
     {
         ShopeeProduct::create(['id' => '101', 'shop_id' => 2, 'status' => 'NORMAL']);
