@@ -13,11 +13,11 @@ class OrderService extends BaseService
     {
         $shop = ShopeeShop::findOrFail($shop_id);
 
-        $partner_id = app('shopee')->getPartnerId();
+        $partner_id = $this->shopee->getPartnerId();
         $route = 'order.get_list';
-        $path = app('shopee')->getPath($route);
+        $path = $this->shopee->getPath($route);
         $access_token = data_get($shop, 'accessToken.access_token');
-        $signature = app('shopee')->helper()->generateSignature($path, [$access_token, $shop_id]);
+        $signature = $this->shopee->generateSignature($path, [$access_token, $shop_id]);
 
         $query_string = [
             'partner_id' => $partner_id,
@@ -68,11 +68,11 @@ class OrderService extends BaseService
             'Shop not found.'
         );
 
-        $partner_id = app('shopee')->getPartnerId();
+        $partner_id = $this->shopee->getPartnerId();
         $route = 'order.get_detail';
-        $path = app('shopee')->getPath($route);
+        $path = $this->shopee->getPath($route);
         $access_token = data_get($shop, 'accessToken.access_token');
-        $signature = app('shopee')->helper()->generateSignature($path, [$access_token, $shop->id]);
+        $signature = $this->shopee->generateSignature($path, [$access_token, $shop->id]);
 
         $query_string = [
             'partner_id' => $partner_id,

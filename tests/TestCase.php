@@ -33,6 +33,8 @@ class TestCase extends Orchestra
             'prefix' => '',
         ]);
 
+        $app['config']->set('app.key', 'base64:' . base64_encode(str_repeat('k', 32)));
+
         // Setup Shopee configuration
         $app['config']->set('shopee.partner_id', 'test_partner_id');
         $app['config']->set('shopee.partner_key', 'test_partner_key');

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Laraditz\Shopee\Models\ShopeeShop;
 use Laraditz\Shopee\Shopee;
 use Laraditz\Shopee\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ReturnsApiTest extends TestCase
 {
@@ -24,7 +25,7 @@ class ReturnsApiTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function get_return_list_calls_endpoint_and_syncs_returns()
     {
         $body = [
@@ -75,7 +76,7 @@ class ReturnsApiTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function get_return_detail_calls_endpoint_and_syncs_return()
     {
         $body = [
@@ -112,7 +113,7 @@ class ReturnsApiTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function shopee_error_body_is_returned_without_syncing()
     {
         $body = [

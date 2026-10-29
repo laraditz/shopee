@@ -4,10 +4,11 @@ namespace Laraditz\Shopee\Tests\Feature;
 
 use Laraditz\Shopee\Facades\Shopee;
 use Laraditz\Shopee\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ServiceProviderTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_registers_shopee_service_in_container()
     {
         $shopee = app('shopee');
@@ -15,13 +16,13 @@ class ServiceProviderTest extends TestCase
         $this->assertInstanceOf(\Laraditz\Shopee\Shopee::class, $shopee);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_use_shopee_facade()
     {
         $this->assertInstanceOf(\Laraditz\Shopee\Shopee::class, Shopee::getFacadeRoot());
     }
 
-    /** @test */
+    #[Test]
     public function it_loads_configuration()
     {
         $this->assertEquals('test_partner_id', config('shopee.partner_id'));
@@ -30,14 +31,14 @@ class ServiceProviderTest extends TestCase
         $this->assertTrue(config('shopee.sandbox.mode'));
     }
 
-    /** @test */
+    #[Test]
     public function it_has_redirect_url_config_key()
     {
         $this->assertArrayHasKey('redirect_url', config('shopee'));
         $this->assertNull(config('shopee.redirect_url'));
     }
 
-    /** @test */
+    #[Test]
     public function it_registers_commands()
     {
         $commands = $this->app->make('Illuminate\Contracts\Console\Kernel')->all();

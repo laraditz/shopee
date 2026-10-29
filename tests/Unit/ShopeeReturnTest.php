@@ -7,10 +7,11 @@ use Laraditz\Shopee\Models\ShopeeOrder;
 use Laraditz\Shopee\Models\ShopeeReturn;
 use Laraditz\Shopee\Models\ShopeeShop;
 use Laraditz\Shopee\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ShopeeReturnTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function shopee_returns_table_has_expected_columns()
     {
         $this->assertTrue(Schema::hasColumns('shopee_returns', [
@@ -30,7 +31,7 @@ class ShopeeReturnTest extends TestCase
         ]));
     }
 
-    /** @test */
+    #[Test]
     public function shopee_return_uses_string_primary_key_and_casts()
     {
         ShopeeReturn::create([
@@ -48,7 +49,7 @@ class ShopeeReturnTest extends TestCase
         $this->assertSame(1, $return->shop_id);
     }
 
-    /** @test */
+    #[Test]
     public function shopee_return_belongs_to_shop_and_order()
     {
         ShopeeShop::create(['id' => 1, 'name' => 'Shop A']);
@@ -59,7 +60,7 @@ class ShopeeReturnTest extends TestCase
         $this->assertSame('ORDER1', $return->order->id);
     }
 
-    /** @test */
+    #[Test]
     public function shopee_return_order_is_null_when_order_not_synced()
     {
         $return = ShopeeReturn::create(['id' => 'R1', 'shop_id' => 1, 'order_sn' => 'UNKNOWN']);
@@ -67,7 +68,7 @@ class ShopeeReturnTest extends TestCase
         $this->assertNull($return->order);
     }
 
-    /** @test */
+    #[Test]
     public function shop_and_order_have_many_returns()
     {
         $shop = ShopeeShop::create(['id' => 1, 'name' => 'Shop A']);
@@ -97,7 +98,7 @@ class ShopeeReturnTest extends TestCase
         ], $overrides);
     }
 
-    /** @test */
+    #[Test]
     public function sync_from_payload_maps_all_fields()
     {
         $return = ShopeeReturn::syncFromPayload($this->payload(), 1);
@@ -117,7 +118,7 @@ class ShopeeReturnTest extends TestCase
         $this->assertSame(1700003600, $fresh->return_updated_at->getTimestamp());
     }
 
-    /** @test */
+    #[Test]
     public function sync_from_payload_updates_existing_row()
     {
         ShopeeReturn::syncFromPayload($this->payload(), 1);
@@ -127,7 +128,7 @@ class ShopeeReturnTest extends TestCase
         $this->assertSame('ACCEPTED', ShopeeReturn::find('2209010001')->status);
     }
 
-    /** @test */
+    #[Test]
     public function sync_from_payload_returns_null_without_return_sn()
     {
         $this->assertNull(ShopeeReturn::syncFromPayload(['order_sn' => 'ORDER1'], 1));
@@ -135,7 +136,7 @@ class ShopeeReturnTest extends TestCase
         $this->assertDatabaseCount('shopee_returns', 0);
     }
 
-    /** @test */
+    #[Test]
     public function sync_from_payload_does_not_overwrite_with_missing_or_null_fields()
     {
         ShopeeReturn::syncFromPayload($this->payload(), 1);
@@ -154,7 +155,7 @@ class ShopeeReturnTest extends TestCase
         $this->assertSame(1700003600, $fresh->return_updated_at->getTimestamp());
     }
 
-    /** @test */
+    #[Test]
     public function sync_from_payload_falls_back_to_flat_status_keys()
     {
         ShopeeReturn::syncFromPayload($this->payload([
@@ -172,7 +173,7 @@ class ShopeeReturnTest extends TestCase
         $this->assertSame('PENDING_REQUEST', $fresh->seller_compensation_status);
     }
 
-    /** @test */
+    #[Test]
     public function sync_from_payload_skips_zero_or_invalid_timestamps()
     {
         ShopeeReturn::syncFromPayload($this->payload(['create_time' => 0, 'update_time' => 'abc']), 1);
@@ -182,7 +183,7 @@ class ShopeeReturnTest extends TestCase
         $this->assertNull($fresh->return_updated_at);
     }
 
-    /** @test */
+    #[Test]
     public function sync_from_payload_keeps_shop_id_when_null_given()
     {
         ShopeeReturn::syncFromPayload($this->payload(), 1);

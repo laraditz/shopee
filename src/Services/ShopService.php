@@ -9,20 +9,24 @@ use Laraditz\Shopee\Models\ShopeeRequest;
 
 class ShopService extends BaseService
 {
-    public function generateAuthorizationURL()
+    public function generateAuthorizationURL(?string $redirect = null)
     {
         $partner_id = $this->shopee->getPartnerId();
         $route = 'shop.auth_partner';
         $path = $this->shopee->getPath($route);
         $signature = $this->shopee->generateSignature($path);
-        $redirect_url = config('shopee.redirect_url');
+        $callback = $redirect;
 
-        $callback = route('shopee.shops.authorized');
+        if ($callback === null) {
+            $redirect_url = config('shopee.redirect_url');
 
-        if ($redirect_url) {
-            // Append redirect_url inside the callback URL so Shopee carries it through.
-            // Note: SHOPEE_REDIRECT_URL must not contain a query string.
-            $callback .= '?' . http_build_query(['redirect_url' => $redirect_url]);
+            $callback = route('shopee.shops.authorized');
+
+            if ($redirect_url) {
+                // Append redirect_url inside the callback URL so Shopee carries it through.
+                // Note: SHOPEE_REDIRECT_URL must not contain a query string.
+                $callback .= '?' . http_build_query(['redirect_url' => $redirect_url]);
+            }
         }
 
         $query_string = [

@@ -114,6 +114,20 @@ class Shopee
         ];
     }
 
+    public function verifyPushSignature(string $url, string $rawBody, string $authorization): bool
+    {
+        $authorization = strtolower(trim($authorization));
+        $partnerKey = (string) $this->getPartnerKey();
+
+        if ($authorization === '' || $partnerKey === '') {
+            return false;
+        }
+
+        $expected = hash_hmac('sha256', $url . '|' . $rawBody, $partnerKey);
+
+        return hash_equals($expected, $authorization);
+    }
+
     public function getPartnerId()
     {
         return $this->partner_id;
@@ -139,7 +153,7 @@ class Shopee
         return $this->shop_id;
     }
 
-    public function setShopId(string|int $shopId): void
+    public function setShopId(string|int|null $shopId): void
     {
         $this->shop_id = $shopId;
     }

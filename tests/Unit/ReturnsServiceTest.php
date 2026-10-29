@@ -7,10 +7,11 @@ use Laraditz\Shopee\Models\ShopeeRequest;
 use Laraditz\Shopee\Services\ReturnsService;
 use Laraditz\Shopee\Shopee;
 use Laraditz\Shopee\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ReturnsServiceTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function returns_routes_are_configured()
     {
         $this->assertSame([
@@ -19,13 +20,13 @@ class ReturnsServiceTest extends TestCase
         ], config('shopee.routes.returns'));
     }
 
-    /** @test */
+    #[Test]
     public function it_resolves_returns_service()
     {
         $this->assertInstanceOf(ReturnsService::class, Shopee::make()->returns());
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_for_unsupported_returns_method()
     {
         $this->expectException(BadMethodCallException::class);
@@ -47,7 +48,7 @@ class ReturnsServiceTest extends TestCase
         return new ReturnsService(new Shopee(partner_id: 'pid', partner_key: 'pkey', shop_id: 1));
     }
 
-    /** @test */
+    #[Test]
     public function after_get_return_list_response_syncs_each_return()
     {
         $this->service()->afterGetReturnListResponse($this->makeRequest('getReturnList'), [
@@ -66,7 +67,7 @@ class ReturnsServiceTest extends TestCase
         $this->assertDatabaseHas('shopee_returns', ['id' => 'R2', 'shop_id' => 1, 'order_sn' => 'O2', 'status' => 'ACCEPTED']);
     }
 
-    /** @test */
+    #[Test]
     public function after_get_return_detail_response_syncs_the_return()
     {
         $this->service()->afterGetReturnDetailResponse($this->makeRequest('getReturnDetail'), [
@@ -76,7 +77,7 @@ class ReturnsServiceTest extends TestCase
         $this->assertDatabaseHas('shopee_returns', ['id' => 'R1', 'shop_id' => 1, 'status' => 'REFUND_PAID']);
     }
 
-    /** @test */
+    #[Test]
     public function hooks_do_nothing_when_response_missing()
     {
         $service = $this->service();

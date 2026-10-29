@@ -102,12 +102,14 @@ class BaseService
             $this->setPayload($payload);
         }
 
-        $request = ShopeeRequest::create([
+        $request = new ShopeeRequest([
             'shop_id' => $this->shopee->getShopId(),
             'action' => $this->serviceName . '::' . $this->methodName,
             'url' => $url,
             'request' => $this->getPayload() && count($this->getPayload()) > 0 ? $this->getPayload() : null,
         ]);
+
+        $this->persistLog($request, []);
 
         // dd($url, $payload);
 
@@ -119,13 +121,13 @@ class BaseService
             $request_id = data_get($result, 'request_id');
 
             if ($error) {
-                $request->update([
+                $this->persistLog($request, [
                     'response' => $result,
                     'request_id' => $request_id,
                     'error' => $error
                 ]);
             } else {
-                $request->update([
+                $this->persistLog($request, [
                     'error' => Str::limit($e->getMessage(), limit: 97)
                 ]);
             }
@@ -134,7 +136,7 @@ class BaseService
         if ($response->successful()) {
             $result = $response->json();
 
-            $request->update([
+            $this->persistLog($request, [
                 'response' => $result,
                 'request_id' => data_get($result, 'request_id'),
                 'error' => data_get($result, 'error')
@@ -144,6 +146,73 @@ class BaseService
 
             return $result;
         }
+    }
+
+    /**
+     * Fill the log model and save it when request logging is on. The model held
+     * by the after-hooks keeps the real values; only the saved copy is redacted.
+     */
+    private function persistLog(ShopeeRequest $request, array $attributes): void
+    {
+        $request->fill($attributes);
+
+        if (!config('shopee.logging.requests', true)) {
+            return;
+        }
+
+        if (!config('shopee.logging.redact_secrets', false)) {
+            $request->save();
+
+            return;
+        }
+
+        $original = [];
+        foreach (['url', 'request', 'response'] as $key) {
+            $original[$key] = $request->getAttributes()[$key] ?? null;
+        }
+
+        $secretKeys = ['access_token', 'refresh_token', 'code', 'sign'];
+        $responseKeys = ['access_token', 'refresh_token'];
+
+        $request->url = $this->redactUrl($request->url, $secretKeys);
+        $request->request = $this->redactArray($request->request, $secretKeys);
+        $request->response = $this->redactArray($request->response, $responseKeys);
+
+        try {
+            $request->save();
+        } finally {
+            // restore real values so hooks see them, without marking them dirty
+            $request->setRawAttributes(array_merge($request->getAttributes(), $original), true);
+        }
+    }
+
+    private function redactArray(mixed $data, array $keys): mixed
+    {
+        if (!is_array($data)) {
+            return $data;
+        }
+
+        foreach ($data as $key => $value) {
+            if (is_string($key) && in_array($key, $keys, true)) {
+                $data[$key] = '[REDACTED]';
+            } elseif (is_array($value)) {
+                $data[$key] = $this->redactArray($value, $keys);
+            }
+        }
+
+        return $data;
+    }
+
+    private function redactUrl(?string $url, array $keys): ?string
+    {
+        if (!$url || !str_contains($url, '?')) {
+            return $url;
+        }
+
+        [$base, $query] = explode('?', $url, 2);
+        parse_str($query, $params);
+
+        return $base . '?' . http_build_query($this->redactArray($params, $keys));
     }
 
     private function afterResponse(ShopeeRequest $request, ?array $result = []): void

@@ -51,6 +51,7 @@ class ShopeeServiceProvider extends ServiceProvider
                 $this->commands([
                     Console\RefreshTokenCommand::class,
                     Console\FlushExpiredTokenCommand::class,
+                    Console\EncryptTokensCommand::class,
                 ]);
             }
         }
